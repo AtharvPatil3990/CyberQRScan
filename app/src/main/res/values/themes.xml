@@ -13,4 +13,31 @@
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
     </style>
+  <!-- Base application theme. -->
+    <style name="Base.Theme.CyberQRScan" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- For example, you can override default colors: -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- <item name="colorSecondary">@color/my_light_secondary</item> -->
+
+        <!-- Define the custom attribute styles here -->
+        <item name="materialButtonOutlinedStyle">@style/Widget.App.Button.Outlined</item>
+        <!-- You can also define other custom styles like tonal, text, etc. -->
+        <!-- <item name="materialButtonTonalStyle">@style/Widget.App.Button.Tonal</item> -->
+    </style>
+
+  <!-- Define the actual button styles that the attributes point to -->
+    <style name="Widget.App.Button.Primary" parent="Widget.Material3.Button">
+        <!-- You can customize the primary button further if needed -->
+        <!-- <item name="android:textColor">@color/white</item> -->
+        <!-- <item name="backgroundTint">?attr/colorPrimary</item> -->
+    </style>
+
+    <style name="Widget.App.Button.Outlined" parent="Widget.Material3.Button.OutlinedButton">
+        <!-- You can customize the outlined button further if needed -->
+        <!-- <item name="strokeColor">?attr/colorPrimary</item> -->
+    </style>
+
+
+    <!-- <style name="Theme.CyberQRScan" parent="Base.Theme.CyberQRScan" /> -->
 </resources>

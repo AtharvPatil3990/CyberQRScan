@@ -43,7 +43,14 @@ dependencies {
     implementation(libs.lifecycle.viewmodel.ktx)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.scenecore)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation(libs.navigation.fragment) // This likely points to the non-ktx version via your libs.versions.toml
+    implementation(libs.navigation.ui)       // This likely points to the non-ktx version via your libs.versions.toml
+    implementation (libs.navigation.fragment.ktx) // You have this
+    implementation (libs.navigation.ui.ktx)     // And this
+
+    implementation(libs.imageslideshow)
 }
