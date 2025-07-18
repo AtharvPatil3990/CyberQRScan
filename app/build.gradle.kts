@@ -51,6 +51,4 @@ dependencies {
     implementation(libs.navigation.ui)       // This likely points to the non-ktx version via your libs.versions.toml
     implementation (libs.navigation.fragment.ktx) // You have this
     implementation (libs.navigation.ui.ktx)     // And this
-
-    implementation(libs.imageslideshow)
 }

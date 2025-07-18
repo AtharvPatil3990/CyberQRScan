@@ -5,8 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background=" #1E2A38"
-    > <!-- Modern surface color -->
+    android:background="#D7040404" >
 
     <androidx.cardview.widget.CardView
         android:layout_marginTop="30dp"
@@ -17,15 +16,13 @@
         android:id="@+id/cardView"
         app:cardElevation="20dp"
         app:cardCornerRadius="20dp" >
-
-
     </androidx.cardview.widget.CardView>
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnScan"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_weight="1"
         android:textColor="@color/white"
         android:layout_marginTop="100dp"
         android:layout_below="@id/cardView"
@@ -36,12 +33,22 @@
         />
 
     <com.google.android.material.button.MaterialButton
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/btnUploadQR"
+        android:text="Upload QR image"
+        android:textSize="15dp"
+        android:layout_marginTop="30dp"
+        android:backgroundTint="#0D1B2A"
+        android:layout_below="@id/btnScan"
+        />
+
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnGenerate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="@color/white"
-        android:layout_weight="1"
-        android:layout_below="@id/btnScan"
+        android:layout_below="@id/btnUploadQR"
         android:textSize="15dp"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_marginTop="30dp"
@@ -56,9 +63,3 @@
         android:layout_weight="1" />
 
 </RelativeLayout>
-
-    <!-- Dots Indicator -->
-
-
-
-
