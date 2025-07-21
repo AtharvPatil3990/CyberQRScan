@@ -1,5 +1,7 @@
 package com.example.cyberqrscan.ui.home;
 
+import static android.app.Activity.RESULT_OK;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -8,6 +10,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -20,13 +23,14 @@ import com.example.cyberqrscan.R;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.material.button.MaterialButton;
-import com.google.mlkit.vision.barcode.Barcode;
+import com.google.mlkit.vision.barcode.common.Barcode;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
 import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 
 public class HomeFragment extends Fragment {
+    private ActivityResultLauncher<Intent> galleryLauncher;
 
-    private MaterialButton btnScan;
+    private MaterialButton btnScan , btnUploadQR;
 
     @Nullable
     @Override
@@ -36,13 +40,32 @@ public class HomeFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_home, container, false);
 
         btnScan = view.findViewById(R.id.btnScan);
+        btnUploadQR = view.findViewById(R.id.btnUploadQR);
 
         btnScan.setOnClickListener(v -> {
             // Request camera permission
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
         });
+        btnUploadQR.setOnClickListener(v -> {
+            openGallery();
+        });
 
+        galleryLauncher = registerForActivityResult(
+                new ActivityResultContracts.StartActivityForResult(),
+                result -> {
+                    if (result.getResultCode() == RESULT_OK && result.getData() != null) {
+                        Uri selectedImageUri = result.getData().getData();
+
+                        // Implement the code for Local database Storage of code and show the appropriate data
+                    }
+                }
+        );
         return view;
+    }
+    private void openGallery() {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        galleryLauncher.launch(intent);
     }
 
     // Launcher for requesting camera permission
