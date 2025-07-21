@@ -12,6 +12,8 @@ lifecycleViewmodelKtx = "2.9.1"
 navigationFragment = "2.9.1"
 navigationUi = "2.9.1"
 scenecore = "1.0.0-alpha04"
+firebaseCrashlyticsBuildtools = "3.0.4"
+playServicesCodeScanner = "16.1.0"
 
 [libraries]
 imageslideshow = { module = "com.github.denzcoskun:ImageSlideshow", version.ref = "imageslideshow" }
@@ -28,6 +30,8 @@ navigation-fragment-ktx = { module = "androidx.navigation:navigation-fragment-kt
 navigation-ui = { group = "androidx.navigation", name = "navigation-ui", version.ref = "navigationUi" }
 navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.ref = "navigationFragment" }
 scenecore = { group = "androidx.xr.scenecore", name = "scenecore", version.ref = "scenecore" }
+firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
+play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
