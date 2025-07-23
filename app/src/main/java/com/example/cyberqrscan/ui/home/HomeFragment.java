@@ -30,7 +30,7 @@ import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 public class HomeFragment extends Fragment {
     private ActivityResultLauncher<Intent> galleryLauncher;
 
-    private MaterialButton btnScan , btnUploadQR;
+    private MaterialButton btnScan , btnUploadQR, btnGenerateQR;
 
     @Nullable
     @Override
@@ -41,11 +41,13 @@ public class HomeFragment extends Fragment {
 
         btnScan = view.findViewById(R.id.btnScan);
         btnUploadQR = view.findViewById(R.id.btnUploadQR);
+        btnGenerateQR = view.findViewById(R.id.btnGenerate);
 
         btnScan.setOnClickListener(v -> {
             // Request camera permission
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
         });
+
         btnUploadQR.setOnClickListener(v -> {
             openGallery();
         });
@@ -74,7 +76,8 @@ public class HomeFragment extends Fragment {
                 if (isGranted) {
                     // Permission granted, start scanning
                     startBarcodeScanner();
-                } else {
+                }
+                else {
                     Toast.makeText(requireContext(), "Camera permission denied.", Toast.LENGTH_SHORT).show();
                 }
             });
@@ -89,7 +92,9 @@ public class HomeFragment extends Fragment {
                     if (barcode.getValueType() == Barcode.TYPE_URL && scannedValue != null) {
                         Intent loadPage = new Intent(Intent.ACTION_VIEW, Uri.parse(scannedValue));
                         startActivity(loadPage);
-                    } else {
+                    }
+
+                    else {
                         Toast.makeText(requireContext(), "Scanned: " + scannedValue, Toast.LENGTH_SHORT).show();
                     }
                 })
@@ -97,7 +102,7 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(requireContext(), "Scan canceled.", Toast.LENGTH_SHORT).show();
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(requireContext(), "Scan failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
                 });
     }
 }

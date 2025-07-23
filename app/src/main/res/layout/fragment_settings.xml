@@ -4,16 +4,47 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="15dp"
+    android:backgroundTint="@color/lightGrey"
     tools:context=".ui.settings.SettingsFragment">
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/tvGeneralSettings"
+        android:text="General Settings"
+        android:textSize="20dp"
+        android:layout_marginBottom="10dp"
+        android:textStyle="bold"
+        android:textColor="@color/PrimaryColorLightTheme"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:id="@+id/lvGeneralSettings"
+        android:layout_below="@+id/tvGeneralSettings"
+        android:layout_marginBottom="25dp"
+        />
 
     <TextView
-        android:id="@+id/text_notifications"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:textAlignment="center"
-        android:textSize="20sp" />
+        android:id="@+id/tvHelp"
+        android:layout_below="@+id/lvGeneralSettings"
+        android:text="Help"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:textColor="@color/PrimaryColorLightTheme"
+        android:layout_marginBottom="10dp"
+        />
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:id="@+id/lvHelpSettings"
+        android:layout_below="@+id/tvHelp"
+
+        />
 
 </RelativeLayout>
