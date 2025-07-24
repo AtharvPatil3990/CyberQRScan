@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.scenecore)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.play.services.code.scanner)
+    implementation(libs.preference)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -72,4 +73,6 @@ dependencies {
     implementation("com.google.guava:guava:31.1-android")
 
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
+    implementation("androidx.preference:preference:1.2.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }
