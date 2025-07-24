@@ -3,9 +3,18 @@ package com.example.cyberqrscan.ui.home;
 import static android.app.Activity.RESULT_OK;
 
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.NetworkRequest;
 import android.net.Uri;
+import android.net.wifi.WifiNetworkSpecifier;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -89,13 +98,35 @@ public class HomeFragment extends Fragment {
         scanner.startScan()
                 .addOnSuccessListener(barcode -> {
                     String scannedValue = barcode.getRawValue();
-                    if (barcode.getValueType() == Barcode.TYPE_URL && scannedValue != null) {
-                        Intent loadPage = new Intent(Intent.ACTION_VIEW, Uri.parse(scannedValue));
-                        startActivity(loadPage);
-                    }
-
-                    else {
-                        Toast.makeText(requireContext(), "Scanned: " + scannedValue, Toast.LENGTH_SHORT).show();
+                    Intent intent ;
+                    switch(barcode.getValueType()){
+                        case Barcode.TYPE_URL :
+                            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+                            break ;
+                        case Barcode.TYPE_TEXT :
+                            copyData(scannedValue);
+                            intent = new Intent(requireContext(), QRData.class) ;
+                            intent.putExtra("type" , "Text : ") ;
+                            intent.putExtra("data",scannedValue);
+                            startActivity(intent);
+                            break ;
+                        case Barcode.TYPE_EMAIL:
+                            intent = new Intent (Intent.ACTION_SENDTO , Uri.parse("mailto:")) ;
+                            startActivity(intent);
+                            break ;
+                        case Barcode.TYPE_PHONE:
+                            intent = new Intent (Intent.ACTION_DIAL , Uri.parse("tel:+91"+scannedValue)) ;
+                            startActivity(intent) ;
+                            break ;
+                        case Barcode.TYPE_SMS:
+                            intent = new Intent (requireContext() , QRData.class) ;
+                            intent.putExtra("type" , "SMS") ;
+                            intent.putExtra("data" , scannedValue) ;
+                            startActivity(intent);
+                            break ;
+                        case Barcode.TYPE_WIFI:
+                           connectWifi(barcode);
+                           break ;
                     }
                 })
                 .addOnCanceledListener(() -> {
@@ -104,5 +135,51 @@ public class HomeFragment extends Fragment {
                 .addOnFailureListener(e -> {
                     Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
                 });
+    }
+    public void connectWifi(Barcode barcode){
+        Barcode.WiFi wifi = barcode.getWifi();
+
+        String ssid = wifi.getSsid();
+        String password = wifi.getPassword();
+        int encryption = wifi.getEncryptionType();
+
+        WifiNetworkSpecifier specifier = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            specifier = new WifiNetworkSpecifier.Builder()
+                    .setSsid(ssid)
+                    .setWpa2Passphrase(password)
+                    .build();
+        }
+
+        NetworkRequest request = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            request = new NetworkRequest.Builder()
+                    .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+                    .setNetworkSpecifier(specifier)
+                    .build();
+        }
+
+        ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+            @Override
+            public void onAvailable(Network network) {
+                Toast.makeText(requireContext(), "WiFi Connected !", Toast.LENGTH_SHORT).show();
+            }
+            public void onUnavailable() {
+                Toast.makeText(requireContext(), "Failed to connect Wi-Fi", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        connectivityManager.requestNetwork(request, networkCallback);
+    }
+    public void copyData(String scannedValue){
+        ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+
+        ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
+        clipboard.setPrimaryClip(clip);
+
+        Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+
     }
 }

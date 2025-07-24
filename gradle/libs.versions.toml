@@ -14,7 +14,7 @@ navigationUi = "2.9.1"
 scenecore = "1.0.0-alpha04"
 firebaseCrashlyticsBuildtools = "3.0.4"
 playServicesCodeScanner = "16.1.0"
-preference = "1.2.1"
+activity = "1.8.0"
 
 [libraries]
 imageslideshow = { module = "com.github.denzcoskun:ImageSlideshow", version.ref = "imageslideshow" }
@@ -33,7 +33,7 @@ navigation-ui-ktx = { module = "androidx.navigation:navigation-ui-ktx", version.
 scenecore = { group = "androidx.xr.scenecore", name = "scenecore", version.ref = "scenecore" }
 firebase-crashlytics-buildtools = { group = "com.google.firebase", name = "firebase-crashlytics-buildtools", version.ref = "firebaseCrashlyticsBuildtools" }
 play-services-code-scanner = { group = "com.google.android.gms", name = "play-services-code-scanner", version.ref = "playServicesCodeScanner" }
-preference = { group = "androidx.preference", name = "preference", version.ref = "preference" }
+activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
