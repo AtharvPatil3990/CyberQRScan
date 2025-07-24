@@ -46,6 +46,7 @@ dependencies {
     implementation(libs.scenecore)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.play.services.code.scanner)
+    implementation(libs.activity)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
