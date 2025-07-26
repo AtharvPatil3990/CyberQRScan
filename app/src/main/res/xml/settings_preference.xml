@@ -9,9 +9,9 @@
         android:title="General Settings" >
 
         <ListPreference
-            android:key="prefTheme"
+            android:key="prefAppTheme"
             android:title="App Theme"
-            android:summary="Light"
+            android:summary="%s"
             android:entries="@array/app_themes"
             android:entryValues="@array/app_themes_values"
             />
