@@ -2,15 +2,15 @@
 <resources>
     
     <string-array name="app_themes">
-        <item name="light">Light</item>
-        <item name="dark">Dark</item>
-        <item name="system_default">System Default</item>
+        <item>Light</item>
+        <item>Dark</item>
+        <item>System Default</item>
     </string-array>
 
     <string-array name="app_themes_values">
-        <item name="light">light</item>
-        <item name="dark">dark</item>
-        <item name="system_default">system_default</item>
+        <item>light</item>
+        <item>dark</item>
+        <item>system_default</item>
     </string-array>
 
 </resources>
