@@ -321,6 +321,6 @@ public class HomeFragment extends Fragment {
         dialog.show();
     }
     public void checkAutoCopy(){
-        
+
     }
 }
