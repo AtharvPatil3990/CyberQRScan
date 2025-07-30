@@ -37,18 +37,43 @@
             android:defaultValue="false"
             />
 
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="prefHelp"
+        android:title="History">
+
         <Preference
             android:key="clear_history"
             android:title="Clear Scan History"
             android:summary="Delete all saved scans"
             />
 
+        <Preference
+            android:key="prefSync"
+            android:title="Sync History"
+            android:summary="Sync history to cloud"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="prefSaveHistory"
+            android:title="Save History"
+            android:summary="Save QR scan and generation history"
+            android:defaultValue="true"
+            />
+
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="prefGeneral"
-        android:title="Help">
+        android:key="prefAboutUs"
+        android:title="About Us">
+
+        <Preference
+            android:key="prefReportBug"
+            android:title="Report Bug"
+            android:summary="Email us to report issues"
+            />
+
 
     </PreferenceCategory>
-
 </androidx.preference.PreferenceScreen>

@@ -1,6 +1,8 @@
 package com.example.cyberqrscan.ui.settings;
 
 import android.os.Bundle;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.ListPreference;
 import androidx.preference.PreferenceFragmentCompat;
@@ -10,8 +12,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
- setPreferencesFromResource(R.xml.settings_preference, rootKey);
-
+        setPreferencesFromResource(R.xml.settings_preference, rootKey);
         // Find the ListPreference by key
         ListPreference themePreference = findPreference("prefAppTheme");
 
@@ -30,9 +31,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
                         break;
                 }
-
                 return true; 
             });
+        }
+        else{
+            Toast.makeText(requireContext(), "Error occurred", Toast.LENGTH_SHORT).show();
         }
     }
 }
