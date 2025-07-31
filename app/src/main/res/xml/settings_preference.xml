@@ -14,6 +14,7 @@
             android:summary="%s"
             android:entries="@array/app_themes"
             android:entryValues="@array/app_themes_values"
+            android:defaultValue="system_default"
             />
 
         <SwitchPreferenceCompat
@@ -32,19 +33,19 @@
 
         <SwitchPreferenceCompat
             android:title="Vibration on Scan"
-            android:summary="Provide tactile feedback on successful scan."
             android:key="prefVibrationOnScan"
+            android:summary="Provide tactile feedback on successful scan."
             android:defaultValue="false"
             />
 
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:key="prefHelp"
+        android:key="prefHistory"
         android:title="History">
 
         <Preference
-            android:key="clear_history"
+            android:key="prefClearHistory"
             android:title="Clear Scan History"
             android:summary="Delete all saved scans"
             />
@@ -61,7 +62,17 @@
             android:summary="Save QR scan and generation history"
             android:defaultValue="true"
             />
+    </PreferenceCategory>
 
+    <PreferenceCategory
+        android:key="prefSecurity"
+        android:title="Security and Privacy" >
+
+        <SwitchPreferenceCompat
+            android:key="prefSafeBrowsingCheck"
+            android:title="Enable Safe Browsing Check"
+            android:summary="Warn if scanned URL is unsafe or suspicious"
+            android:defaultValue="true" />
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -74,6 +85,10 @@
             android:summary="Email us to report issues"
             />
 
-
+        <Preference
+            android:key="prefVersion"
+            android:title="Version"
+            android:selectable="false"
+            />
     </PreferenceCategory>
 </androidx.preference.PreferenceScreen>

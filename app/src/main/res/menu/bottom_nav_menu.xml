@@ -9,13 +9,13 @@
     <!-- Dashboard -> History   -->
     <item
         android:id="@+id/navigation_history"
-        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:icon="@drawable/icon_history"
         android:title="@string/title_history" />
 
     <!-- notifications -> settings   -->
     <item
         android:id="@+id/navigation_settings"
-        android:icon="@drawable/ic_notifications_black_24dp"
+        android:icon="@drawable/icon_settings"
         android:title="@string/title_settings" />
 
 </menu>

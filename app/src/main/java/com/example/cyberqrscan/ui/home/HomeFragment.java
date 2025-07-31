@@ -7,7 +7,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -16,6 +19,8 @@ import android.net.Uri;
 import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.example.cyberqrscan.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -41,6 +47,8 @@ public class HomeFragment extends Fragment {
 
     private MaterialButton btnScan , btnUploadQR, btnGenerateQR;
 
+    SharedPreferences sharedPreferences;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -51,6 +59,8 @@ public class HomeFragment extends Fragment {
         btnScan = view.findViewById(R.id.btnScan);
         btnUploadQR = view.findViewById(R.id.btnUploadQR);
         btnGenerateQR = view.findViewById(R.id.btnGenerate);
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
 
         btnScan.setOnClickListener(v -> {
             // Request camera permission
@@ -101,10 +111,9 @@ public class HomeFragment extends Fragment {
                     Intent intent ;
                     switch(barcode.getValueType()){
                         case Barcode.TYPE_URL :
-                            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+                            openUrl(scannedValue);
                             break ;
                         case Barcode.TYPE_TEXT :
-                            copyData(scannedValue);
                             intent = new Intent(requireContext(), QRData.class) ;
                             intent.putExtra("type" , "Text : ") ;
                             intent.putExtra("data",scannedValue);
@@ -128,6 +137,9 @@ public class HomeFragment extends Fragment {
                            connectWifi(barcode);
                            break ;
                     }
+                    if(sharedPreferences.getBoolean("prefAutoCopy", false)){
+                        copyData(scannedValue);
+                    }
                 })
                 .addOnCanceledListener(() -> {
                     Toast.makeText(requireContext(), "Scan canceled.", Toast.LENGTH_SHORT).show();
@@ -136,6 +148,29 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    public void openUrl(String scannedValue){
+
+        //    For Beep
+        if(sharedPreferences.getBoolean("prefBeepSound",false)){
+            ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
+            toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 150);
+        }
+
+        //    For Vibration
+        if (sharedPreferences.getBoolean("prefVibrationOnScan",false)){
+            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator()) {
+                VibrationEffect effect = VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(effect);
+            }
+        }
+        if(scannedValue.startsWith("https://"))
+            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+        else
+            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("https://"+scannedValue)));
+    }
+
     public void connectWifi(Barcode barcode){
         Barcode.WiFi wifi = barcode.getWifi();
 
@@ -173,6 +208,7 @@ public class HomeFragment extends Fragment {
 
         connectivityManager.requestNetwork(request, networkCallback);
     }
+
     public void copyData(String scannedValue){
         ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
