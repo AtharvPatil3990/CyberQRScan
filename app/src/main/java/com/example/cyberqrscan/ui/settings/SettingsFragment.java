@@ -1,37 +1,41 @@
 package com.example.cyberqrscan.ui.settings;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
+import androidx.appcompat.app.AppCompatDelegate;
+import androidx.preference.ListPreference;
+import androidx.preference.PreferenceFragmentCompat;
+import com.example.cyberqrscan.R;
 
-import com.example.cyberqrscan.databinding.FragmentSettingsBinding;
-
-public class SettingsFragment extends Fragment {
-
-    private FragmentSettingsBinding binding;
-
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        SettingsViewModel settingsViewModel =
-                new ViewModelProvider(this).get(SettingsViewModel.class);
-
-        binding = FragmentSettingsBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-
-
-        return root;
-    }
+public class SettingsFragment extends PreferenceFragmentCompat {
 
     @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+    public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+        setPreferencesFromResource(R.xml.settings_preference, rootKey);
+        // Find the ListPreference by key
+        ListPreference themePreference = findPreference("prefAppTheme");
+
+        if (themePreference != null) {
+            themePreference.setOnPreferenceChangeListener((preference, newValue) -> {
+                String selectedTheme = (String) newValue;
+
+                switch (selectedTheme) {
+                    case "light":
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                        break;
+                    case "dark":
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                        break;
+                    default:
+                        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
+                        break;
+                }
+                return true; 
+            });
+        }
+        else{
+            Toast.makeText(requireContext(), "Error occurred", Toast.LENGTH_SHORT).show();
+        }
     }
 }

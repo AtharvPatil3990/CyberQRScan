@@ -11,7 +11,7 @@ android {
         minSdk = 26
         targetSdk = 35
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -46,7 +46,7 @@ dependencies {
     implementation(libs.scenecore)
     implementation(libs.firebase.crashlytics.buildtools)
     implementation(libs.play.services.code.scanner)
-    implementation(libs.activity)
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
@@ -73,4 +73,6 @@ dependencies {
     implementation("com.google.guava:guava:31.1-android")
 
     implementation("com.google.android.gms:play-services-mlkit-barcode-scanning:18.3.1")
+    implementation("androidx.preference:preference:1.2.1")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 }

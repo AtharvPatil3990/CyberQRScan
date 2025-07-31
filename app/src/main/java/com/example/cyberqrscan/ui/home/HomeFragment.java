@@ -176,11 +176,9 @@ public class HomeFragment extends Fragment {
     }
     public void copyData(String scannedValue){
         ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
-
         ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
         clipboard.setPrimaryClip(clip);
 
         Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
-
     }
 }

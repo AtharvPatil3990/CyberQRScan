@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#D7040404" >
+    android:background="@color/background">
 
     <androidx.cardview.widget.CardView
         android:layout_marginTop="30dp"
@@ -14,8 +14,10 @@
         android:layout_width="match_parent"
         android:layout_height="200dp"
         android:id="@+id/cardView"
-        app:cardElevation="20dp"
-        app:cardCornerRadius="20dp" >
+        app:cardElevation="8dp"
+        app:cardCornerRadius="20dp"
+        app:cardBackgroundColor="@color/card_background"
+        >
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton
@@ -23,10 +25,10 @@
         style="?attr/materialButtonOutlinedStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
+        android:textColor="@color/button_text"
+        app:backgroundTint="@color/button_background"
         android:layout_marginTop="100dp"
         android:layout_below="@id/cardView"
-        android:backgroundTint="#0D1B2A"
         android:text="Scan QR"
         android:textSize="15dp"
         app:icon="@drawable/ic_scan_qr"
@@ -39,7 +41,8 @@
         android:text="Upload QR image"
         android:textSize="15dp"
         android:layout_marginTop="30dp"
-        android:backgroundTint="#0D1B2A"
+        android:textColor="@color/button_text"
+        app:backgroundTint="@color/button_background"
         android:layout_below="@id/btnScan"
         />
 
@@ -47,13 +50,13 @@
         android:id="@+id/btnGenerate"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@color/white"
+        android:text="Generate QR"
         android:layout_below="@id/btnUploadQR"
         android:textSize="15dp"
+        android:textColor="@color/button_text"
+        app:backgroundTint="@color/button_background"
         style="?attr/materialButtonOutlinedStyle"
         android:layout_marginTop="30dp"
-        android:text="Generate QR"
-        android:backgroundTint="#0D1B2A"
         app:icon="@drawable/ic_generate_qr"/>
 
     <Space

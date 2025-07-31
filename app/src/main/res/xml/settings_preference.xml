@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:key="setting_preference" >
+
+    <PreferenceCategory
+        android:key="prefGeneral"
+        android:title="General Settings" >
+
+        <ListPreference
+            android:key="prefAppTheme"
+            android:title="App Theme"
+            android:summary="%s"
+            android:entries="@array/app_themes"
+            android:entryValues="@array/app_themes_values"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="prefAutoCopy"
+            android:title="Auto Copy to Clipboard"
+            android:summary="Automatically copy the scanned content to clipboard."
+            android:defaultValue="false"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="prefBeepSound"
+            android:title="Beep Sound"
+            android:summary="Play a beep when a QR/barcode is successfully scanned"
+            android:defaultValue="false"
+            />
+
+        <SwitchPreferenceCompat
+            android:title="Vibration on Scan"
+            android:summary="Provide tactile feedback on successful scan."
+            android:key="prefVibrationOnScan"
+            android:defaultValue="false"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="prefHelp"
+        android:title="History">
+
+        <Preference
+            android:key="clear_history"
+            android:title="Clear Scan History"
+            android:summary="Delete all saved scans"
+            />
+
+        <Preference
+            android:key="prefSync"
+            android:title="Sync History"
+            android:summary="Sync history to cloud"
+            />
+
+        <SwitchPreferenceCompat
+            android:key="prefSaveHistory"
+            android:title="Save History"
+            android:summary="Save QR scan and generation history"
+            android:defaultValue="true"
+            />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="prefAboutUs"
+        android:title="About Us">
+
+        <Preference
+            android:key="prefReportBug"
+            android:title="Report Bug"
+            android:summary="Email us to report issues"
+            />
+
+
+    </PreferenceCategory>
+</androidx.preference.PreferenceScreen>

@@ -24,9 +24,6 @@ public class HistoryFragment extends Fragment {
 
         binding = FragmentHistoryBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
-        final TextView textView = binding.textDashboard;
-        historyViewModel.getText().observe(getViewLifecycleOwner(), textView::setText);
         return root;
     }
 
