@@ -78,11 +78,11 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 "Model: " + Build.MODEL + "\n" +
                 "Android Version: " + Build.VERSION.RELEASE + "\n" +
                 "App Version: " + appVersion;
-        String emailBody = "Please describe the bug below:\n\n\n\n\n---\n" + deviceInfo;
-        String devEmail=getString(R.string.reportEmail);
+        String emailBody = "Please describe the bug below:\n\n\n\n\n\n---\n" + deviceInfo;
+        String[] devEmail=new String[]{getString(R.string.reportEmail)};
         Intent sendReportEmailIntent = new Intent(Intent.ACTION_SENDTO);
         sendReportEmailIntent.setData(Uri.parse("mailto:"));
-        sendReportEmailIntent.putExtra(Intent.EXTRA_EMAIL, devEmail);
+        sendReportEmailIntent.putExtra(Intent.EXTRA_EMAIL,devEmail);
         sendReportEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - QR Scanner App");
         sendReportEmailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
         startActivity(sendReportEmailIntent);
