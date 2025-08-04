@@ -197,7 +197,7 @@ public class HomeFragment extends Fragment {
 
         ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
-            public void onAvailable(Network network) {
+            public void onAvailable(@NonNull Network network) {
                 Toast.makeText(requireContext(), "WiFi Connected !", Toast.LENGTH_SHORT).show();
             }
             public void onUnavailable() {
@@ -205,6 +205,7 @@ public class HomeFragment extends Fragment {
             }
         };
 
+        assert request != null;
         connectivityManager.requestNetwork(request, networkCallback);
     }
     public void copyData(String scannedValue){
@@ -215,7 +216,7 @@ public class HomeFragment extends Fragment {
         Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
-    private void showURLAlertBox(String scannedValue, Context context){
+    private void showURLAlertBox(@NonNull String scannedValue, Context context){
         new AlertDialog.Builder(context)
                 .setTitle("QR Code Result")
                 .setMessage("Contains a ")

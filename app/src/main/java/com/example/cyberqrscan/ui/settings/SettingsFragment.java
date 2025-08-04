@@ -83,7 +83,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Intent sendReportEmailIntent = new Intent(Intent.ACTION_SENDTO);
         sendReportEmailIntent.setData(Uri.parse("mailto:"));
         sendReportEmailIntent.putExtra(Intent.EXTRA_EMAIL,devEmail);
-        sendReportEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - QR Scanner App");
+        sendReportEmailIntent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - CyberQRScanner App");
         sendReportEmailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
         startActivity(sendReportEmailIntent);
     }
