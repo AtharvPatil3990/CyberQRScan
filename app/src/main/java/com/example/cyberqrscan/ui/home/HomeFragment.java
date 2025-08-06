@@ -7,7 +7,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.media.AudioManager;
+import android.media.ToneGenerator;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -16,6 +19,8 @@ import android.net.Uri;
 import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +31,9 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.example.cyberqrscan.R;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -101,7 +108,7 @@ public class HomeFragment extends Fragment {
                     Intent intent ;
                     switch(barcode.getValueType()){
                         case Barcode.TYPE_URL :
-                            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+                            showURLAlertBox(scannedValue, requireContext());
                             break ;
                         case Barcode.TYPE_TEXT :
                             copyData(scannedValue);
@@ -136,6 +143,33 @@ public class HomeFragment extends Fragment {
                     Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
                 });
     }
+
+    private void openUrl(String scannedValue, Context context){
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);;
+
+        if (preferences.getBoolean("prefBeepSound", false)) {
+            // Beep
+            ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+            toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+        }
+
+        if (preferences.getBoolean("prefVibrationOnScan", false)) {
+            // Vibrate
+            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator()) {
+                VibrationEffect effect = VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(effect);
+            }
+        }
+
+        if(!scannedValue.startsWith("https://"))
+            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("https://"+scannedValue)));
+        else if(!scannedValue.startsWith("http://"))
+            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("http://"+scannedValue)));
+        else
+            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+    }
+
     public void connectWifi(Barcode barcode){
         Barcode.WiFi wifi = barcode.getWifi();
 
@@ -163,7 +197,7 @@ public class HomeFragment extends Fragment {
 
         ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
             @Override
-            public void onAvailable(Network network) {
+            public void onAvailable(@NonNull Network network) {
                 Toast.makeText(requireContext(), "WiFi Connected !", Toast.LENGTH_SHORT).show();
             }
             public void onUnavailable() {
@@ -171,15 +205,30 @@ public class HomeFragment extends Fragment {
             }
         };
 
+        assert request != null;
         connectivityManager.requestNetwork(request, networkCallback);
     }
     public void copyData(String scannedValue){
         ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
-
         ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
         clipboard.setPrimaryClip(clip);
 
         Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+    }
 
+    private void showURLAlertBox(@NonNull String scannedValue, Context context){
+        new AlertDialog.Builder(context)
+                .setTitle("QR Code Result")
+                .setMessage("Contains a ")
+                .setPositiveButton("Open", (dialog, which) -> {
+                    // Open URL
+                    openUrl(scannedValue, context);
+                })
+                .setNegativeButton("Copy", (dialog, which) -> {
+                    // Copy to clipboard
+                    copyData(scannedValue);
+                })
+                .setNeutralButton("Cancel", null)
+                .show();
     }
 }

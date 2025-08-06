@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="15dp"
-    android:backgroundTint="@color/lightGrey"
+    android:padding="10dp"
+    android:backgroundTint="@color/background"
     tools:context=".ui.settings.SettingsFragment">
 
     <FrameLayout
