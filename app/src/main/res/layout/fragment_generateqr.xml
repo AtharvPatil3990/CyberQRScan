@@ -1,6 +1,147 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-             android:layout_width="match_parent"
-             android:layout_height="match_parent">
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="#D5D5D5">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/tvGenerateQR"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/design_textviewfile"
+        android:text="Generate QR's"
+        android:textSize="20dp"
+        android:textColor="@color/white"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="35dp"
+
+      />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:text="URL"
+        android:textSize="20dp"
+       android:backgroundTint="#FFF8F8"
+        android:textColor="@color/black"
+        android:id="@+id/btnUrl"
+        app:elevation="100dp"
+        android:padding="10dp"
+        android:layout_marginTop="70dp"
+        app:cornerRadius="12dp"
+
+        />
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:text=" Phone no"
+        android:textSize="20dp"
+        android:layout_toRightOf="@+id/btnUrl"
+        android:backgroundTint="#FFF8F8"
+        android:textColor="@color/black"
+        app:cornerRadius="12dp"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:layout_marginTop="70dp"
+        android:layout_marginLeft="5dp"
+        android:id="@+id/btnphone"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnemail"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnUrl"
+        android:backgroundTint="#FFF8F8"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:text="Email"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+        android:layout_marginTop="20dp"
+       />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnplain"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnphone"
+        android:layout_toRightOf="@id/btnemail"
+        android:backgroundTint="#FFF8F8"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:text="Plain"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnwifi"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnemail"
+        android:backgroundTint="#FFF8F8"
+        android:elevation="10dp"
+        android:layout_marginTop="20dp"
+        android:padding="10dp"
+        android:text="Wi-fi"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnSMS"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnplain"
+        android:layout_toRightOf="@+id/btnwifi"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        android:backgroundTint="#FFF8F8"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:text="SMS"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnApp"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnwifi"
+        android:backgroundTint="#FFF8F8"
+        android:layout_marginTop="20dp"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:text="App"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+        />
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btnFiledownload"
+        android:layout_width="200dp"
+        android:layout_height="120dp"
+        android:layout_below="@+id/btnSMS"
+        android:backgroundTint="#FFF8F8"
+        android:elevation="10dp"
+        android:padding="10dp"
+        android:text="Files"
+        android:textColor="@color/black"
+        android:textSize="20dp"
+        app:cornerRadius="12dp"
+        android:layout_toRightOf="@id/btnApp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginTop="20dp"
+        />
+
+
+
+
+</RelativeLayout>

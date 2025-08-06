@@ -22,4 +22,9 @@
         android:name="com.example.cyberqrscan.ui.settings.SettingsFragment"
         android:label="@string/title_settings"
         tools:layout="@layout/fragment_settings" />
+    <fragment
+        android:id="@+id/GenerateFragment"
+        android:name="com.example.cyberqrscan.ui.history.GenerateFragment"
+        android:label="GenerateQR"
+        tools:layout="@layout/fragment_GenerateQR"/>
 </navigation>
