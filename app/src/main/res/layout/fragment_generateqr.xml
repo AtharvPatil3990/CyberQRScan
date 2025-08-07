@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/generateQR"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -16,8 +18,8 @@
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:layout_marginLeft="35dp"
-      />
 
+      />
     <com.google.android.material.button.MaterialButton
         android:layout_width="200dp"
         android:layout_height="120dp"
@@ -30,8 +32,8 @@
         android:padding="10dp"
         android:layout_marginTop="70dp"
         app:cornerRadius="12dp"
-        />
 
+        />
     <com.google.android.material.button.MaterialButton
         android:layout_width="200dp"
         android:layout_height="120dp"
@@ -62,7 +64,6 @@
         app:cornerRadius="12dp"
         android:layout_marginTop="20dp"
        />
-
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnplain"
         android:layout_width="200dp"
@@ -78,8 +79,8 @@
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
-        />
 
+        />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnwifi"
         android:layout_width="200dp"
@@ -93,8 +94,8 @@
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
-        />
 
+        />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSMS"
         android:layout_width="200dp"
@@ -111,9 +112,8 @@
         android:textSize="20dp"
         app:cornerRadius="12dp"
         />
-
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnApp"
+        android:id="@+id/btnGeo"
         android:layout_width="200dp"
         android:layout_height="120dp"
         android:layout_below="@+id/btnwifi"
@@ -121,27 +121,29 @@
         android:layout_marginTop="20dp"
         android:elevation="10dp"
         android:padding="10dp"
-        android:text="App"
+        android:text="Location"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
         />
-
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnFiledownload"
+        android:id="@+id/btnvCard"
         android:layout_width="200dp"
         android:layout_height="120dp"
         android:layout_below="@+id/btnSMS"
         android:backgroundTint="#FFF8F8"
         android:elevation="10dp"
         android:padding="10dp"
-        android:text="Files"
+        android:text="Contact"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
-        android:layout_toRightOf="@id/btnApp"
+        android:layout_toRightOf="@id/btnGeo"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
         />
+
+
+
 
 </RelativeLayout>
