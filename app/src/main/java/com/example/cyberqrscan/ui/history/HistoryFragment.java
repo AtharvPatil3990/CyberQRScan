@@ -16,6 +16,7 @@ import com.example.cyberqrscan.databinding.FragmentHistoryBinding;
 public class HistoryFragment extends Fragment {
 
     private FragmentHistoryBinding binding;
+    TextView textView ;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

@@ -79,7 +79,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
                 "Android Version: " + Build.VERSION.RELEASE + "\n" +
                 "App Version: " + appVersion;
         String emailBody = "Please describe the bug below:\n\n\n\n\n---\n" + deviceInfo;
-        String devEmail=getString(R.string.reportEmail);
+        String[] devEmail = {getString(R.string.reportEmail)};
         Intent sendReportEmailIntent = new Intent(Intent.ACTION_SENDTO);
         sendReportEmailIntent.setData(Uri.parse("mailto:"));
         sendReportEmailIntent.putExtra(Intent.EXTRA_EMAIL, devEmail);
