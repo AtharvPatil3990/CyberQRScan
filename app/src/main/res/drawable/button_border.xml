@@ -1,4 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
-  
-</selector>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Border layer -->
+    <item>
+        <shape android:shape="rectangle">
+            <stroke android:width="2dp" android:color="#6200EE"/>
+            <solid android:color="@android:color/transparent"/>
+            <corners android:radius="8dp"/>
+        </shape>
+    </item>
+
+    <!-- Content inset: leaves space for default background -->
+    <item android:left="2dp" android:top="2dp"
+        android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/transparent" />
+        </shape>
+    </item>
+
+</layer-list>
