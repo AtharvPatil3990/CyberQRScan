@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--<<<<<<< HEAD-->
+<<<<<<< HEAD
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#D5D5D5">
-<!--=======-->
+=======
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
              android:layout_width="match_parent"
              android:layout_height="match_parent"
-             android:backgroundTint="@color/background"/>
-<!-->>>>>> 6058a1b4b7dc0281d8f0e54833964140614b9630>-->
+             android:backgroundTint="@color/background" >
+>>>>>>> 6058a1b4b7dc0281d8f0e54833964140614b9630
 
     <TextView
         android:id="@+id/tvGenerateQR"
@@ -30,17 +30,12 @@
         android:layout_height="120dp"
         android:text="URL"
         android:textSize="20dp"
-        android:backgroundTint="#FFF8F8"
+       android:backgroundTint="#FFF8F8"
         android:textColor="@color/black"
         android:id="@+id/btnUrl"
         app:elevation="100dp"
+        android:padding="10dp"
         android:layout_marginTop="70dp"
-        app:icon="@drawable/url_button"
-        app:iconGravity="textStart"
-        app:iconPadding="@dimen/activity_horizontal_margin"
-        app:iconSize="45dp"
-        app:iconTint="@color/inactive_dot_color"
-        app:iconTintMode="add"
         app:cornerRadius="12dp"
 
         />
@@ -57,10 +52,6 @@
         android:padding="10dp"
         android:layout_marginTop="70dp"
         android:layout_marginLeft="5dp"
-        app:icon="@drawable/phone_no"
-        app:iconGravity="textStart"
-        app:iconTint="#0BFF0F"
-        app:iconSize="45dp"
         android:id="@+id/btnphone"
         />
 
@@ -77,12 +68,6 @@
         android:textSize="20dp"
         app:cornerRadius="12dp"
         android:layout_marginTop="20dp"
-        app:icon="@drawable/mail"
-        app:iconGravity="textStart"
-        app:iconTint="@color/inactive_dot_color"
-        app:iconTintMode="add"
-        app:iconSize="45dp"
-
        />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnplain"
@@ -97,11 +82,6 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/black"
-        app:icon="@drawable/plain"
-        app:iconSize="45dp"
-        app:iconGravity="textStart"
-        app:iconTint="@color/inactive_dot_color"
-        app:iconTintMode="add"
         android:textSize="20dp"
         app:cornerRadius="12dp"
 
@@ -118,11 +98,6 @@
         android:text="Wi-fi"
         android:textColor="@color/black"
         android:textSize="20dp"
-        app:icon="@drawable/wifi"
-        app:iconGravity="textStart"
-        app:iconSize="45dp"
-        app:iconTint="@color/PrimaryColorLightTheme"
-        app:iconTintMode="add"
         app:cornerRadius="12dp"
 
         />
@@ -140,11 +115,7 @@
         android:text="SMS"
         android:textColor="@color/black"
         android:textSize="20dp"
-        app:icon="@drawable/sms"
-        app:iconTint="@color/inactive_dot_color"
-        app:iconGravity="textStart"
-        app:iconTintMode="add"
-        app:iconSize="45dp"
+        app:cornerRadius="12dp"
         />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnApp"
@@ -158,11 +129,6 @@
         android:text="App"
         android:textColor="@color/black"
         android:textSize="20dp"
-        app:icon="@drawable/app"
-        app:iconSize="45dp"
-        app:iconGravity="textStart"
-        app:iconTint="@color/inactive_dot_color"
-        app:iconTintMode="add"
         app:cornerRadius="12dp"
         />
     <com.google.android.material.button.MaterialButton
@@ -180,11 +146,6 @@
         android:layout_toRightOf="@id/btnApp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
-        app:icon="@drawable/files"
-        app:iconGravity="textStart"
-        app:iconSize="45dp"
-        app:iconTint="@color/black"
-
         />
 
 
