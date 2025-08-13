@@ -34,8 +34,7 @@ public class QRDatabase extends SQLiteOpenHelper {
     private static final String createTableURLHash = "CREATE TABLE " + urlHashTable +
             " ( id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
             "    hash_prefix TEXT NOT NULL,\n" +
-            "    threat_type TEXT NOT NULL,\n" +
-            "    expiration_time INTEGER NOT NULL )";
+            "    threat_type TEXT NOT NULL);";
     public QRDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -59,7 +58,6 @@ public class QRDatabase extends SQLiteOpenHelper {
         ContentValues values = new ContentValues();
         values.put("hash_prefix", hash);
         values.put("threat_type", threat_type);
-        values.put("expiration_time", expirationTime);
         db.insert(urlHashTable, null, values);
     }
 

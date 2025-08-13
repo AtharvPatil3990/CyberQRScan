@@ -2,6 +2,7 @@ package com.example.cyberqrscan;
 
 import android.os.Bundle;
 
+import com.example.cyberqrscan.ui.settings.AppInfo;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -34,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
         // Setup ActionBar & BottomNavigationView
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(navView, navController);
+
+        AppInfo.init(MainActivity.this); // Passed Context for getting app version info
     }
 
     @Override
