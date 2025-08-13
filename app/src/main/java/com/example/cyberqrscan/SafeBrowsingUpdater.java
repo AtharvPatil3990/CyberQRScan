@@ -8,6 +8,7 @@ import org.json.JSONObject;
 import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
 
 import androidx.preference.PreferenceManager;
@@ -92,7 +93,8 @@ public class SafeBrowsingUpdater{
                         String rawHashes = rawHashesObj.getString("rawHashes");
                         int prefixSize = rawHashesObj.getInt("prefixSize");
 
-                        saveHashesToDatabase(rawHashes, prefixSize);
+                        QRDatabase db = new QRDatabase(AppInfo.getContext());
+                        db.saveHashesToDatabase(rawHashes, prefixSize);
                     }
                 }
 
@@ -111,38 +113,6 @@ public class SafeBrowsingUpdater{
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void saveHashesToDatabase(String rawHashes, int prefixSize){
-        try {
-            // Step 1: Decode Base64 into raw bytes
-            byte[] decodedBytes = Base64.decode(rawHashes, Base64.DEFAULT);
-
-            // Step 2: Get current timestamp and expiration time
-            long addedAt = System.currentTimeMillis() / 1000; // in seconds
-            long expirationTime = addedAt + 300; // Example: 5 min (300 sec) validity
-
-            // Step 3: Split into prefixes and insert into DB
-            SQLiteDatabase db = QRDatabase.getWritableDatabase();
-            db.beginTransaction();
-            try {
-                for (int i = 0; i < decodedBytes.length; i += prefixSize) {
-                    byte[] prefix = Arrays.copyOfRange(decodedBytes, i, i + prefixSize);
-
-                    ContentValues values = new ContentValues();
-                    values.put("hash_prefix", prefix);
-
-                    db.insert("malware_hash_prefixes", null, values);
-                }
-                db.setTransactionSuccessful();
-            } finally {
-                db.endTransaction();
-                db.close();
-            }
-
-        } catch (Exception e) {
             e.printStackTrace();
         }
     }

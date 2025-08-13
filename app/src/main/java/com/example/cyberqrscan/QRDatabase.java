@@ -5,6 +5,9 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Base64;
+
+import java.util.Arrays;
 
 //CREATE TABLE url_hash_prefixes (
 //        id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,7 +36,7 @@ public class QRDatabase extends SQLiteOpenHelper {
             ")";
     private static final String createTableURLHash = "CREATE TABLE " + urlHashTable +
             " ( id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-            "    hash_prefix TEXT NOT NULL,\n" +
+            "    hash_prefix BLOB NOT NULL,\n" +
             "    threat_type TEXT NOT NULL);";
     public QRDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -81,5 +84,33 @@ public class QRDatabase extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(scanTable, null, null);
         db.delete(generateTable , null , null) ;
+    }
+
+    void saveHashesToDatabase(String rawHashes, int prefixSize){
+        try {
+            // Step 1: Decode Base64 into raw bytes
+            byte[] decodedBytes = Base64.decode(rawHashes, Base64.DEFAULT);
+
+            // Step 2: Split into prefixes and insert into DB
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.beginTransaction();
+            try {
+                for (int i = 0; i < decodedBytes.length; i += prefixSize) {
+                    byte[] prefix = Arrays.copyOfRange(decodedBytes, i, i + prefixSize);
+
+                    ContentValues values = new ContentValues();
+                    values.put("hash_prefix", prefix);
+
+
+                    db.insert(urlHashTable, null, values);
+                }
+                db.setTransactionSuccessful();
+            } finally {
+                db.endTransaction();
+                db.close();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
