@@ -1,8 +1,14 @@
 package com.example.cyberqrscan.ui.home;
 
+import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +21,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
 
 import com.example.cyberqrscan.QRDatabase;
@@ -24,16 +31,20 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.zxing.BarcodeFormat;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GenerateQRResult extends AppCompatActivity {
-    LinearLayout layout ;
+    LinearLayout layout  , saveAndshareLayout;
     LinearLayout inputLayout ;
-    Button submit ;
+    Button submit  , save , share ;
     ImageView qr ;
     QRDatabase database ;
-    @Nullable
+    List<TextInputEditText> dynamicEditTexts = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -42,11 +53,16 @@ public class GenerateQRResult extends AppCompatActivity {
         layout = findViewById(R.id.dynamicLayout) ;
         submit = findViewById(R.id.submit) ;
         inputLayout = findViewById(R.id.inputLayout) ;
+        saveAndshareLayout = findViewById(R.id.saveAndshareLayout) ;
+        save = findViewById(R.id.save) ;
+        share = findViewById(R.id.share) ;
         qr = findViewById(R.id.qr) ;
 
+        saveAndshareLayout.setVisibility(View.INVISIBLE);
+
         Intent intent = getIntent() ;
-        List <String> array = intent.getStringArrayListExtra("array") ;
         String type = intent.getStringExtra("type") ;
+        List <String> array = intent.getStringArrayListExtra("array") ;
         List<String> inputValues = new ArrayList<>();
 
         addInputs(array);
@@ -54,11 +70,23 @@ public class GenerateQRResult extends AppCompatActivity {
         submit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TextInputEditText[] dynamicEditTexts = new TextInputEditText[0];
                 for (TextInputEditText editText : dynamicEditTexts) {
                     inputValues.add(editText.getText().toString().trim());
                 }
                 String data = formatQRString(type , inputValues) ;
+                generateQR(data);
+            }
+        });
+        save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                saveImageToGallery();
+            }
+        });
+        share.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                shareQRCode(qr);
             }
         });
     }
@@ -68,6 +96,7 @@ public class GenerateQRResult extends AppCompatActivity {
                 BarcodeEncoder encoder = new BarcodeEncoder();
                 Bitmap bitmap = encoder.encodeBitmap(data, BarcodeFormat.QR_CODE, 400, 400);
                 qr.setImageBitmap(bitmap);
+                saveAndshareLayout.setVisibility(View.VISIBLE);
             } catch (Exception e) {
                 e.printStackTrace();
                 Toast.makeText(GenerateQRResult.this , "QR generation failed!", Toast.LENGTH_SHORT).show();
@@ -76,12 +105,14 @@ public class GenerateQRResult extends AppCompatActivity {
     }
     public void addInputs(List <String> array){
         layout.removeAllViews() ;
+        dynamicEditTexts.clear();
         LayoutInflater inflater = LayoutInflater.from(GenerateQRResult.this) ;
         for(int i = 0 ; i < array.size() ; i++){
             View inputView = inflater.inflate(R.layout.inputs ,layout, false) ;
             TextInputLayout textInputLayout = inputView.findViewById(R.id.textInputLayout);
             TextInputEditText editText = inputView.findViewById(R.id.editText);
 
+            dynamicEditTexts.add(editText);
             editText.setHint(array.get(i));
             layout.addView(inputView);
         }
@@ -135,5 +166,72 @@ public class GenerateQRResult extends AppCompatActivity {
                 return null;
         }
     }
+    private void saveImageToGallery() {
+        OutputStream fos;
+        qr.buildDrawingCache();
+        Bitmap bitmap = ((BitmapDrawable) qr.getDrawable()).getBitmap();
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                ContentResolver resolver = getContentResolver();
+                ContentValues contentValues = new ContentValues();
+                contentValues.put(MediaStore.MediaColumns.DISPLAY_NAME, "qr_code_" + System.currentTimeMillis() + ".png");
+                contentValues.put(MediaStore.MediaColumns.MIME_TYPE, "image/png");
+                contentValues.put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_PICTURES + "/CyberQRScan");
+                Uri imageUri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+
+                fos = resolver.openOutputStream(imageUri);
+            } else {
+                String imagesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).toString();
+                File image = new File(imagesDir, "qr_code_" + System.currentTimeMillis() + ".png");
+                fos = new FileOutputStream(image);
+            }
+
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            fos.flush();
+            fos.close();
+
+            Toast.makeText(this, "QR saved to Gallery!", Toast.LENGTH_SHORT).show();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed to save image", Toast.LENGTH_SHORT).show();
+        }
+    }
+    private void shareQRCode(ImageView imageView) {
+        try {
+            // Get Bitmap from ImageView
+            Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+
+            // Save to cache directory
+            File cachePath = new File(getCacheDir(), "images");
+            cachePath.mkdirs(); // create folder if not exists
+            File file = new File(cachePath, "qr_code.png");
+            FileOutputStream stream = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+            stream.close();
+
+            // Get content URI with FileProvider
+            Uri contentUri = FileProvider.getUriForFile(
+                    this,
+                    getPackageName() + ".fileprovider", // must match provider in Manifest
+                    file
+            );
+
+            if (contentUri != null) {
+                // Create share intent
+                Intent shareIntent = new Intent();
+                shareIntent.setAction(Intent.ACTION_SEND);
+                shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); // permission for apps
+                shareIntent.setDataAndType(contentUri, getContentResolver().getType(contentUri));
+                shareIntent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                startActivity(Intent.createChooser(shareIntent, "Share QR Code"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error sharing QR code", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
 
 }

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 public class GenerateQR extends AppCompatActivity {
     Button url , phone , mail , plain ,wifi , sms  , location , contact;
     QRDatabase database ;
+    ArrayList <String> array ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,20 +46,10 @@ public class GenerateQR extends AppCompatActivity {
         sms.setTag("sms");
         location.setTag("location");
         contact.setTag("contact");
-        plain.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ArrayList <String> array = new ArrayList<String>() ;
-                Intent intent = new Intent(GenerateQR.this , GenerateQRResult.class) ;
-                array.add("Url : ") ;
-                intent.putExtra("type" , "url") ;
-                startActivity(intent);
-            }
-        });
 
         View.OnClickListener listener = view1 -> {
            String tag = (String) view1.getTag() ;
-            ArrayList <String> array = new ArrayList<String>() ;
+            array = new ArrayList<String>() ;
             Intent intent = new Intent(GenerateQR.this , GenerateQRResult.class) ;
            switch(tag){
                case "url" :
@@ -107,8 +98,16 @@ public class GenerateQR extends AppCompatActivity {
                    intent.putExtra("type" , "contact") ;
                    break ;
            }
-           intent.putExtra("array" , array) ;
+           intent.putStringArrayListExtra("array" , array) ;
            startActivity(intent);
         } ;
+        url.setOnClickListener(listener);
+        phone.setOnClickListener(listener);
+        mail.setOnClickListener(listener);
+        plain.setOnClickListener(listener);
+        wifi.setOnClickListener(listener);
+        sms.setOnClickListener(listener);
+        location.setOnClickListener(listener);
+        contact.setOnClickListener(listener);
     }
 }

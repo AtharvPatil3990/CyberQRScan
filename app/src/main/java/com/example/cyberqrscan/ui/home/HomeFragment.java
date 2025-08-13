@@ -157,6 +157,11 @@ public class HomeFragment extends Fragment {
 
             case Barcode.TYPE_EMAIL:
                 intent = new Intent (Intent.ACTION_SENDTO , Uri.parse("mailto:")) ;
+                String [] details = parseEmailFromQR(scannedValue) ;
+                intent.putExtra(Intent.EXTRA_EMAIL, details[0]);
+                intent.putExtra(Intent.EXTRA_SUBJECT, details[1]);
+                intent.putExtra(Intent.EXTRA_TEXT, details[2]);
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
                 database.insertData("Email" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
@@ -454,43 +459,54 @@ public class HomeFragment extends Fragment {
             Toast.makeText(getContext(), "Google Maps app not found!", Toast.LENGTH_SHORT).show();
         }
     }
-    public void connectWifi(Barcode barcode){
+    public void connectWifi(Barcode barcode) {
         Barcode.WiFi wifi = barcode.getWifi();
 
         String ssid = wifi.getSsid();
         String password = wifi.getPassword();
         int encryption = wifi.getEncryptionType();
 
-        WifiNetworkSpecifier specifier = null;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            specifier = new WifiNetworkSpecifier.Builder()
-                    .setSsid(ssid)
-                    .setWpa2Passphrase(password)
-                    .build();
-        }
+            WifiNetworkSpecifier.Builder builder = new WifiNetworkSpecifier.Builder().setSsid(ssid);
 
-        NetworkRequest request = null;
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            request = new NetworkRequest.Builder()
+            if (encryption == Barcode.WiFi.TYPE_WPA || encryption == Barcode.WiFi.TYPE_WPA) {
+                builder.setWpa2Passphrase(password);
+            } else if (encryption == Barcode.WiFi.TYPE_WEP) {
+                Toast.makeText(requireContext(), "WEP not supported on Android Q+", Toast.LENGTH_SHORT).show();
+                return;
+            } // Open network → no password
+
+            WifiNetworkSpecifier specifier = builder.build();
+
+            NetworkRequest request = new NetworkRequest.Builder()
                     .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
                     .setNetworkSpecifier(specifier)
                     .build();
+
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+            ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
+                @Override
+                public void onAvailable(Network network) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        connectivityManager.bindProcessToNetwork(network);
+                    }
+                    Toast.makeText(requireContext(), "WiFi Connected to " + ssid, Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onUnavailable() {
+                    Toast.makeText(requireContext(), "Failed to connect Wi-Fi", Toast.LENGTH_SHORT).show();
+                }
+            };
+
+            connectivityManager.requestNetwork(request, networkCallback);
+        } else {
+            Toast.makeText(requireContext(), "Android version too low for WifiNetworkSpecifier", Toast.LENGTH_SHORT).show();
         }
-
-        ConnectivityManager connectivityManager = (ConnectivityManager) requireContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        ConnectivityManager.NetworkCallback networkCallback = new ConnectivityManager.NetworkCallback() {
-            @Override
-            public void onAvailable(Network network) {
-                Toast.makeText(requireContext(), "WiFi Connected !", Toast.LENGTH_SHORT).show();
-            }
-            public void onUnavailable() {
-                Toast.makeText(requireContext(), "Failed to connect Wi-Fi", Toast.LENGTH_SHORT).show();
-            }
-        };
-
-        connectivityManager.requestNetwork(request, networkCallback);
     }
+
     public void copyData(String scannedValue){
         ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
@@ -498,4 +514,40 @@ public class HomeFragment extends Fragment {
 
         Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
     }
+    private String[] parseEmailFromQR(String qrValue) {
+        String email = "";
+        String subject = "";
+        String body = "";
+
+        try {
+            if (qrValue.startsWith("mailto:")) {
+                Uri uri = Uri.parse(qrValue);
+
+                // Get email (after mailto:)
+                email = uri.getSchemeSpecificPart().split("\\?")[0];
+
+                // Get query params
+                String query = uri.getQuery();
+                if (query != null) {
+                    for (String param : query.split("&")) {
+                        String[] pair = param.split("=");
+                        if (pair.length == 2) {
+                            String key = pair[0];
+                            String value = Uri.decode(pair[1]); // Decode %20, etc.
+                            if (key.equalsIgnoreCase("subject")) {
+                                subject = value;
+                            } else if (key.equalsIgnoreCase("body")) {
+                                body = value;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return new String[]{email, subject, body};
+    }
+
 }
