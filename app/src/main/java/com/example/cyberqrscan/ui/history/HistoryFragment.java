@@ -7,30 +7,40 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.viewpager2.widget.ViewPager2;
 
+import com.example.cyberqrscan.R;
 import com.example.cyberqrscan.databinding.FragmentHistoryBinding;
 import com.example.cyberqrscan.databinding.FragmentHistoryBinding;
+import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 public class HistoryFragment extends Fragment {
 
-    private FragmentHistoryBinding binding;
-    TextView textView ;
+    ViewPager2 viewPager ;
+    TabLayout tabLayout ;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
-        HistoryViewModel historyViewModel =
-                new ViewModelProvider(this).get(HistoryViewModel.class);
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_scanhistory, container, false);
 
-        binding = FragmentHistoryBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-        return root;
-    }
+        viewPager = view.findViewById(R.id.view_pager);
+        tabLayout = view.findViewById(R.id.tab_layout);
+        ViewPagerAdapter adapter = new ViewPagerAdapter(getActivity());
+        viewPager.setAdapter(adapter);
+        new TabLayoutMediator(tabLayout, viewPager,
+                (tab, position) -> {
+                    if (position == 0) {
+                        tab.setText("Scan QR");
+                    } else if (position == 1) {
+                        tab.setText("Generate QR");
+                    }
+                }).attach();
 
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
+        return view;
     }
 }

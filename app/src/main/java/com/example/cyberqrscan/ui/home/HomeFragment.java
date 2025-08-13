@@ -70,6 +70,14 @@ public class HomeFragment extends Fragment {
         btnUploadQR = view.findViewById(R.id.btnUploadQR);
         btnGenerateQR = view.findViewById(R.id.btnGenerate);
 
+        btnGenerateQR.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getContext() , GenerateQR.class) ;
+                startActivity(intent);
+            }
+        });
+
         btnScan.setOnClickListener(v -> {
             // Request camera permission
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA);
@@ -128,76 +136,79 @@ public class HomeFragment extends Fragment {
         String scannedValue = barcode.getRawValue();
         Intent intent ;
         QRDatabase database = new QRDatabase(requireContext());
+        AlertDialog.Builder builder ;
 
         switch(barcode.getValueType()){
             case Barcode.TYPE_URL :
                 assert scannedValue != null;
                 showURLAlertBox(scannedValue, requireContext());
-                database.insertData("URL" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("URL" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_TEXT :
                 copyData(scannedValue);
-                intent = new Intent(requireContext(), QRData.class) ;
-                intent.putExtra("type" , "Text : ") ;
-                intent.putExtra("data",scannedValue);
-                startActivity(intent);
-                database.insertData("Text" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("Text Detected");
+                builder.setMessage(barcode.getDisplayValue());
+                builder.setPositiveButton("OK", null);
+                builder.show();
+                database.insertData("Text" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_EMAIL:
                 intent = new Intent (Intent.ACTION_SENDTO , Uri.parse("mailto:")) ;
                 startActivity(intent);
-                database.insertData("Email" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Email" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_PHONE:
                 intent = new Intent (Intent.ACTION_DIAL , Uri.parse("tel:+91"+scannedValue)) ;
                 startActivity(intent) ;
-                database.insertData("Phone Number" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Phone Number" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_SMS:
-                intent = new Intent (requireContext() , QRData.class) ;
-                intent.putExtra("type" , "SMS") ;
-                intent.putExtra("data" , scannedValue) ;
-                startActivity(intent);
-                database.insertData("SMS" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                builder = new AlertDialog.Builder(requireContext());
+                builder.setTitle("SMS Detected");
+                builder.setMessage("Phone Number: " + barcode.getPhone() + "\nMessage: " + barcode.getSms().getMessage());
+                builder.setPositiveButton("OK", null);
+                builder.show();
+                database.insertData("SMS" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_WIFI:
                 connectWifi(barcode);
-                database.insertData("WiFi Details" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("WiFi Details" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_GEO:
                 loadMap(barcode);
-                database.insertData("Geographical Co-ordinates" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Geographical Co-ordinates" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_CALENDAR_EVENT:
                 loadCalender(barcode);
-                database.insertData("Calender" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Calender" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_CONTACT_INFO:
                 loadContacts(barcode);
-                database.insertData("Contact Info" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Contact Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_ISBN:
                 searchISBN(barcode);
-                database.insertData("ISBN" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("ISBN" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_DRIVER_LICENSE:
                 ViewDrivingLicense(barcode);
-                database.insertData("Driving License" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Driving License" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             case Barcode.TYPE_PRODUCT:
                 searchProduct(barcode);
-                database.insertData("Product Info" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Product Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
                 break ;
 
             default:

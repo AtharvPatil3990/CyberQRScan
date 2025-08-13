@@ -6,6 +6,9 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class QRDatabase extends SQLiteOpenHelper {
     private static final String DATABASE_NAME = "cyberQRScan.db";
     private static final int DATABASE_VERSION = 1;
@@ -14,6 +17,8 @@ public class QRDatabase extends SQLiteOpenHelper {
     public static final String type = "type";
     public static final String data = "data";
     public static final String timestamp = "timestamp";
+    public static List<List<String>> scans  = new ArrayList<>() ;
+    public static List <List<String>> generates = new ArrayList<>() ;
     private static final String createTableScan = "CREATE TABLE " + scanTable + " (" +
             type + " TEXT, " +
             data + " TEXT, " +
@@ -48,14 +53,34 @@ public class QRDatabase extends SQLiteOpenHelper {
         values.put(timestamp, scanTimestamp);
         return db.insert(tableName, null, values);
     }
-    public Cursor getAllScan() {
+    public List getAllScan() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(scanTable, null, null, null, null, null, timestamp + " DESC");
-    }
-    public Cursor getAllGenerate() {
+        Cursor cursor = db.rawQuery("SELECT name FROM " + QRDatabase.scanTable, null);
+        List <String> row = new ArrayList<>() ;
+
+        if (cursor.moveToFirst()) {
+            do {
+                row.add(cursor.getString(0));
+                row.add(cursor.getString(1));
+                scans.add(row) ;
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return scans;}
+    public List getAllGenerate() {
         SQLiteDatabase db = this.getReadableDatabase();
-        return db.query(generateTable, null, null, null, null, null, timestamp + " DESC");
-    }
+        Cursor cursor = db.rawQuery("SELECT name FROM " + QRDatabase.generateTable, null);
+        List <String> row = new ArrayList<>() ;
+
+        if (cursor.moveToFirst()) {
+            do {
+                row.add(cursor.getString(0));
+                row.add(cursor.getString(1));
+                generates.add(row) ;
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        return generates;}
     public void deleteAll() {
         SQLiteDatabase db = this.getWritableDatabase();
         db.delete(scanTable, null, null);

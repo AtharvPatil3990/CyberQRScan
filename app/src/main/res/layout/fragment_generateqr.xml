@@ -7,19 +7,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#D5D5D5">
 
-    <TextView
-        android:id="@+id/tvGenerateQR"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/design_textviewfile"
-        android:text="Generate QR's"
-        android:textSize="20dp"
-        android:textColor="@color/white"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="10dp"
-        android:layout_marginLeft="35dp"
 
-      />
+
     <com.google.android.material.button.MaterialButton
         android:layout_width="200dp"
         android:layout_height="120dp"
@@ -31,9 +20,8 @@
         app:elevation="100dp"
         android:padding="10dp"
         android:layout_marginTop="70dp"
-        app:cornerRadius="12dp"
+        app:cornerRadius="12dp" />
 
-        />
     <com.google.android.material.button.MaterialButton
         android:layout_width="200dp"
         android:layout_height="120dp"
@@ -47,8 +35,7 @@
         android:padding="10dp"
         android:layout_marginTop="70dp"
         android:layout_marginLeft="5dp"
-        android:id="@+id/btnphone"
-        />
+        android:id="@+id/btnphone" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnemail"
@@ -62,8 +49,8 @@
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
-        android:layout_marginTop="20dp"
-       />
+        android:layout_marginTop="20dp" />
+
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnplain"
         android:layout_width="200dp"
@@ -78,9 +65,8 @@
         android:layout_marginTop="20dp"
         android:textColor="@color/black"
         android:textSize="20dp"
-        app:cornerRadius="12dp"
+        app:cornerRadius="12dp" />
 
-        />
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btnwifi"
         android:layout_width="200dp"
