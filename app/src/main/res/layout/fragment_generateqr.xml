@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-
+<<<<<<< HEAD
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/generateQR"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#D5D5D5">
+=======
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:backgroundTint="@color/background" >
+>>>>>>> 6058a1b4b7dc0281d8f0e54833964140614b9630
 
     <TextView
         android:id="@+id/tvGenerateQR"
@@ -113,7 +118,7 @@
         app:cornerRadius="12dp"
         />
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnGeo"
+        android:id="@+id/btnApp"
         android:layout_width="200dp"
         android:layout_height="120dp"
         android:layout_below="@+id/btnwifi"
@@ -121,24 +126,24 @@
         android:layout_marginTop="20dp"
         android:elevation="10dp"
         android:padding="10dp"
-        android:text="Location"
+        android:text="App"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
         />
     <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnvCard"
+        android:id="@+id/btnFiledownload"
         android:layout_width="200dp"
         android:layout_height="120dp"
         android:layout_below="@+id/btnSMS"
         android:backgroundTint="#FFF8F8"
         android:elevation="10dp"
         android:padding="10dp"
-        android:text="Contact"
+        android:text="Files"
         android:textColor="@color/black"
         android:textSize="20dp"
         app:cornerRadius="12dp"
-        android:layout_toRightOf="@id/btnGeo"
+        android:layout_toRightOf="@id/btnApp"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
         />
