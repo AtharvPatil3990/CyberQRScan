@@ -7,7 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
 
+import org.json.JSONArray;
+
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 //CREATE TABLE url_hash_prefixes (
 //        id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -86,7 +90,7 @@ public class QRDatabase extends SQLiteOpenHelper {
         db.delete(generateTable , null , null) ;
     }
 
-    void saveHashesToDatabase(String rawHashes, int prefixSize){
+    void saveHashesToDatabase(String rawHashes, int prefixSize, String threatType){
         try {
             // Step 1: Decode Base64 into raw bytes
             byte[] decodedBytes = Base64.decode(rawHashes, Base64.DEFAULT);
@@ -100,9 +104,9 @@ public class QRDatabase extends SQLiteOpenHelper {
 
                     ContentValues values = new ContentValues();
                     values.put("hash_prefix", prefix);
+                    values.put("threat_type",threatType);
 
-
-                    db.insert(urlHashTable, null, values);
+                    db.insert(urlHashTable, null, values); // Adding threat to DB
                 }
                 db.setTransactionSuccessful();
             } finally {
@@ -112,5 +116,58 @@ public class QRDatabase extends SQLiteOpenHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public void removeHashesFromDatabase(JSONArray indices) {
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // Step 1: Get all hashes sorted
+        List<String> sortedHashes = new ArrayList<>();
+        Cursor cursor = db.query(
+                urlHashTable,                // table name
+                new String[]{"hash_prefix"},    // columns
+                null,                           // where clause
+                null,                           // where args
+                null,                           // group by
+                null,                           // having
+                "hash_prefix ASC"               // order by
+        );
+
+        while (cursor.moveToNext()) {
+            sortedHashes.add(cursor.getString(0));
+        }
+        cursor.close();
+
+        // Step 2: Collect hashes to delete using indices
+        List<String> hashesToDelete = new ArrayList<>();
+        for (int i = 0; i < indices.length(); i++) {
+            int idx = indices.optInt(i, -1);
+            if (idx >= 0 && idx < sortedHashes.size()) {
+                hashesToDelete.add(sortedHashes.get(idx));
+            }
+        }
+
+        // Step 3: Delete matching hashes
+        for (String hash : hashesToDelete) {
+            db.delete("threat_hashes", "hash_prefix = ?", new String[]{hash});
+        }
+    }
+
+
+
+    public boolean isHashPrefixInDatabase(String hashPrefix){
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(
+                urlHashTable,                      // Table
+                new String[]{"hash_prefix"},           // Columns
+                "hash_prefix = ?",                     // WHERE clause
+                new String[]{hashPrefix},              // WHERE args
+                null, null, null
+        );
+
+        boolean exists = cursor.moveToFirst();
+        cursor.close();
+        db.close();
+        return exists;
     }
 }
