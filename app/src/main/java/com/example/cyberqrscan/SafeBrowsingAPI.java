@@ -7,9 +7,8 @@ import org.json.JSONObject;
 
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 
+import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
 
 import java.io.IOException;
@@ -28,11 +27,23 @@ import okhttp3.Response;
 public class SafeBrowsingAPI{
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppInfo.getContext());
 
+    public static boolean checkURLSafety(String url){
+        String hash = getUrlHashPrefix(url);
+
+        if(checkURLInDatabase(hash)){
+
+            postReportForFullUrl(hash);
+
+        }
+
+
+    }
+
     private void updateThreatList(){
-        String UPDATE_URL = "https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?key=";
+        String UPDATE_URL = "https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?key="+R.string.API_Key;
 
         OkHttpClient client = new OkHttpClient();
-        String jsonBody = buildJsonRequest();
+        String jsonBody = buildJsonRequestBodyForHash();
 
         RequestBody body = RequestBody.create(
                 jsonBody,
@@ -54,11 +65,12 @@ public class SafeBrowsingAPI{
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
                     System.out.println("Error: " + response.code());
-                    return;
+                    return false;
                 }
 
                 String jsonResponse = response.body().string();
                 handleResponse(jsonResponse);
+                return false;
             }
         });
     }
@@ -99,7 +111,7 @@ public class SafeBrowsingAPI{
                         int prefixSize = rawHashesObj.getInt("prefixSize");
 
 
-                        db.saveHashesToDatabase(rawHashes, prefixSize, threatType);
+                        db.insertHashesToDatabase(rawHashes, prefixSize, threatType);
                     }
                 }
 
@@ -122,7 +134,37 @@ public class SafeBrowsingAPI{
         }
     }
 
-    private String buildJsonRequest(){
+//    JSON body for full hash
+    private static String buildJsonRequestBodyForFullHash(String hash, String threatType) {
+        JSONObject json = new JSONObject();
+        try {
+            // Client info
+            JSONObject clientObj = new JSONObject();
+            clientObj.put("clientId", R.string.projectid);
+            clientObj.put("clientVersion", AppInfo.getVersionName());
+
+            // Threat entries (just one hash)
+            JSONArray threatEntriesArr = new JSONArray();
+            threatEntriesArr.put(new JSONObject().put("hash", hash));
+
+            // Threat info (only one type passed)
+            JSONObject threatInfoObj = new JSONObject();
+            threatInfoObj.put("threatTypes", new JSONArray().put(threatType));
+            threatInfoObj.put("platformTypes", new JSONArray().put("ANDROID")); // you can parameterize this too
+            threatInfoObj.put("threatEntryTypes", new JSONArray().put("URL"));  // fixed to URL
+            threatInfoObj.put("threatEntries", threatEntriesArr);
+
+            // Combine all
+            json.put("client", clientObj);
+            json.put("threatInfo", threatInfoObj);
+
+        } catch (JSONException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return json.toString();
+    }
+    private String buildJsonRequestBodyForHash(){
         try {
             JSONObject root = new JSONObject();
 
@@ -196,56 +238,72 @@ public class SafeBrowsingAPI{
         }
     }
 
-    public void postReportForFullUrl(String url) {
+    public static void postReportForFullUrl(String hash) {
 
         OkHttpClient client = new OkHttpClient();
 
-        JSONObject json = new JSONObject();
-        try {
-            json.put("url", url);
-            json.put("threatDetected", true);
-        } catch (JSONException e) {
-            e.printStackTrace();
+        boolean isSafe;
+        // Fetch threat type from DB
+        QRDatabase db = new QRDatabase(AppInfo.getContext());
+        String threatType = db.getUrlThreatType(hash);
+
+        if (threatType == null) {
+            return ;
         }
 
-        RequestBody body = RequestBody.create(
-                json.toString(),
-                MediaType.parse("application/json")
-        );
+        // Build JSON body
+        String json = buildJsonRequestBodyForFullHash(hash, threatType);
 
-        Request request = new Request.Builder()
-                .url("https://your-server.com/report-threat")
-                .post(body)
-                .build();
+        if (json != null) {
+            RequestBody body = RequestBody.create(
+                    json,
+                    MediaType.parse("application/json")
+            );
 
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
+            Request request = new Request.Builder()
+                    .url("https://safebrowsing.googleapis.com/v4/fullHashes:find?key="+R.string.API_Key)
+                    .post(body)
+                    .build();
 
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    System.out.println("Threat report sent successfully.");
-
-                    //Check the response if threat report user
-                } else {
-                    System.out.println("Failed to send report: " + response.code());
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(@NonNull Call call, @NonNull IOException e) {
+                    e.printStackTrace();
                 }
-            }
-        });
+
+                @Override
+                public void onResponse(Call call, Response response) throws IOException {
+
+                    if (response.isSuccessful()) {
+                        String responseBody = response.body().string();
+
+                        try {
+                            JSONObject jsonResponse = new JSONObject(responseBody);
+
+                            // ✅ Check if "matches" exists
+                            if (jsonResponse.has("matches")) {
+                                isSafe = false;
+                            }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                            System.out.println("Failed to parse server response JSON");
+                        }
+                    } else {
+                        System.out.println("Failed to send report: " + response.code());
+                    }
+                }
+            });
+        } else {
+            System.out.println("Failed to build JSON body for hash: " + hash);
+        }
     }
 
-    public boolean checkURLInDatabase(String url){
+
+    public static boolean checkURLInDatabase(String hashPrefix){
         boolean exists = false;
-        String hashPrefix = getUrlHashPrefix(url);
 
         QRDatabase db = new QRDatabase(AppInfo.getContext());
         db.isHashPrefixInDatabase(hashPrefix);
-
-        if(exists)
-            postReportForFullUrl(url);
 
         return exists;
     }
