@@ -6,7 +6,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -27,23 +29,26 @@ import okhttp3.Response;
 public class SafeBrowsingAPI{
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(AppInfo.getContext());
 
-    public static boolean checkURLSafety(String url){
+    public static void checkURLSafety(String url, SafeCheckCallback callback) {
         String hash = getUrlHashPrefix(url);
 
-        if(checkURLInDatabase(hash)){
-
-            postReportForFullUrl(hash);
-
+        // 1. First check if prefix exists in local DB
+        if (!checkURLInDatabase(hash)) {
+            // If not in DB → it's safe (no known threats)
+            callback.onResult(true);
         }
 
-
+        // 2. If found in DB, confirm with full-hash lookup
+        postReportForFullUrl(hash, callback);
     }
 
-    private void updateThreatList(){
+    public void updateThreatList(){
         String UPDATE_URL = "https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?key="+R.string.API_Key;
 
         OkHttpClient client = new OkHttpClient();
         String jsonBody = buildJsonRequestBodyForHash();
+        if(jsonBody == null)
+            return;
 
         RequestBody body = RequestBody.create(
                 jsonBody,
@@ -58,21 +63,27 @@ public class SafeBrowsingAPI{
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+                Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    System.out.println("Error: " + response.code());
-                    return false;
+                    Toast.makeText(AppInfo.getContext(), "Update URL Response failed", Toast.LENGTH_SHORT).show();
+                    return;
                 }
 
-                String jsonResponse = response.body().string();
+                String jsonResponse = response.body().toString();
                 handleResponse(jsonResponse);
-                return false;
+                Toast.makeText(AppInfo.getContext(), "Update URL Response successful", Toast.LENGTH_SHORT).show();
             }
         });
+
+        // Save the current time as the last update timestamp
+        SharedPreferences prefs = AppInfo.getContext().getSharedPreferences("SafeBrowsingPrefs", Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putLong("last_URLdb_update_time", System.currentTimeMillis());
+        editor.apply();
     }
 
     private void handleResponse(String jsonResponse){
@@ -130,7 +141,7 @@ public class SafeBrowsingAPI{
                 }
             }
         } catch (JSONException e) {
-            e.printStackTrace();
+            Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -238,20 +249,18 @@ public class SafeBrowsingAPI{
         }
     }
 
-    public static void postReportForFullUrl(String hash) {
-
+    public static void postReportForFullUrl(String hash, SafeCheckCallback callback) {
         OkHttpClient client = new OkHttpClient();
 
-        boolean isSafe;
-        // Fetch threat type from DB
         QRDatabase db = new QRDatabase(AppInfo.getContext());
         String threatType = db.getUrlThreatType(hash);
+        db.close();
 
         if (threatType == null) {
-            return ;
+            callback.onResult(true);
+            return;
         }
 
-        // Build JSON body
         String json = buildJsonRequestBodyForFullHash(hash, threatType);
 
         if (json != null) {
@@ -261,50 +270,53 @@ public class SafeBrowsingAPI{
             );
 
             Request request = new Request.Builder()
-                    .url("https://safebrowsing.googleapis.com/v4/fullHashes:find?key="+R.string.API_Key)
+                    .url("https://safebrowsing.googleapis.com/v4/fullHashes:find?key=" + R.string.API_Key)
                     .post(body)
                     .build();
 
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    e.printStackTrace();
+                    Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+                    callback.onResult(true); // If network fails → assume safe
                 }
 
                 @Override
-                public void onResponse(Call call, Response response) throws IOException {
-
+                public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
                     if (response.isSuccessful()) {
                         String responseBody = response.body().string();
 
                         try {
                             JSONObject jsonResponse = new JSONObject(responseBody);
 
-                            // ✅ Check if "matches" exists
+                            // ✅ If matches exist → unsafe
                             if (jsonResponse.has("matches")) {
-                                isSafe = false;
+                                callback.onResult(false);
+                            } else {
+                                callback.onResult(true);
                             }
+
                         } catch (JSONException e) {
-                            e.printStackTrace();
-                            System.out.println("Failed to parse server response JSON");
+                            Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+                            callback.onResult(true); // default safe on error
                         }
                     } else {
                         System.out.println("Failed to send report: " + response.code());
+                        callback.onResult(true); // default safe on server error
                     }
                 }
             });
         } else {
             System.out.println("Failed to build JSON body for hash: " + hash);
+            callback.onResult(true);
         }
     }
 
 
     public static boolean checkURLInDatabase(String hashPrefix){
-        boolean exists = false;
-
         QRDatabase db = new QRDatabase(AppInfo.getContext());
-        db.isHashPrefixInDatabase(hashPrefix);
-
+        boolean exists = db.isHashPrefixInDatabase(hashPrefix);
+        db.close();
         return exists;
     }
 
@@ -317,6 +329,10 @@ public class SafeBrowsingAPI{
             return prefs.getString("safe_browsing_client_state_MALWARE", "");
         else
             return prefs.getString("safe_browsing_client_state_SOCIAL_ENGINEERING", "");
+    }
+
+    public interface SafeCheckCallback{
+        void onResult(boolean isSafe);
     }
 
 }

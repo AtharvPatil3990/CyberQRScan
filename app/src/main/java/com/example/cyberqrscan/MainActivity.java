@@ -1,6 +1,9 @@
 package com.example.cyberqrscan;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.example.cyberqrscan.ui.settings.AppInfo;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -10,6 +13,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -37,6 +41,20 @@ public class MainActivity extends AppCompatActivity {
         NavigationUI.setupWithNavController(navView, navController);
 
         AppInfo.init(MainActivity.this); // Passed Context for getting app version info
+
+        if (NetworkUtil.isNetworkAvailable(MainActivity.this)) {
+            SharedPreferences prefs = MainActivity.this.getSharedPreferences("SafeBrowsingPrefs", Context.MODE_PRIVATE);
+            long lastUpdateTime = prefs.getLong("last_URLdb_update_time", 0);
+
+            long twoHoursMillis = 2 * 60 * 60 * 1000;
+
+            if((System.currentTimeMillis() - lastUpdateTime) <= twoHoursMillis){
+                SafeBrowsingAPI api = new SafeBrowsingAPI();
+                api.updateThreatList();
+            }
+        } else {
+            Toast.makeText(MainActivity.this, "No internet connection!", Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override

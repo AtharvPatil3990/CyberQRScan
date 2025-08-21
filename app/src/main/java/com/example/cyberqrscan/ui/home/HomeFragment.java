@@ -40,6 +40,7 @@ import androidx.preference.PreferenceManager;
 
 import com.example.cyberqrscan.QRDatabase;
 import com.example.cyberqrscan.R;
+import com.example.cyberqrscan.SafeBrowsingAPI;
 import com.google.android.material.button.MaterialButton;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -132,7 +133,7 @@ public class HomeFragment extends Fragment {
         switch(barcode.getValueType()){
             case Barcode.TYPE_URL :
                 assert scannedValue != null;
-                showURLAlertBox(scannedValue, requireContext());
+                openUrl(scannedValue);
                 database.insertData("URL" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
                 break ;
 
@@ -203,6 +204,21 @@ public class HomeFragment extends Fragment {
             default:
                 Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
         }
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        if (preferences.getBoolean("prefBeepSound", false)) {
+            // Beep
+            ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
+            toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
+        }
+
+        if (preferences.getBoolean("prefVibrationOnScan", false)) {
+            // Vibrate
+            Vibrator vibrator = (Vibrator) requireContext().getSystemService(Context.VIBRATOR_SERVICE);
+            if (vibrator != null && vibrator.hasVibrator()) {
+                VibrationEffect effect = VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE);
+                vibrator.vibrate(effect);
+            }
+        }
     }
 
     private void showURLAlertBox(@NonNull String scannedValue, Context context){
@@ -211,7 +227,7 @@ public class HomeFragment extends Fragment {
                 .setMessage("Contains a ")
                 .setPositiveButton("Open", (dialog, which) -> {
                     // Open URL
-                    openUrl(scannedValue, context);
+                    redirectUrl(scannedValue);
                 })
                 .setNegativeButton("Copy", (dialog, which) -> {
                     // Copy to clipboard
@@ -221,31 +237,27 @@ public class HomeFragment extends Fragment {
                 .show();
     }
 
-    private void openUrl(String scannedValue, Context context){
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);;
-
-        if (preferences.getBoolean("prefBeepSound", false)) {
-            // Beep
-            ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
-            toneGen.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
-        }
-
-        if (preferences.getBoolean("prefVibrationOnScan", false)) {
-            // Vibrate
-            Vibrator vibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
-            if (vibrator != null && vibrator.hasVibrator()) {
-                VibrationEffect effect = VibrationEffect.createOneShot(150, VibrationEffect.DEFAULT_AMPLITUDE);
-                vibrator.vibrate(effect);
-            }
-        }
-        // Starting intent
+    private void redirectUrl(String scannedValue){
         if(!scannedValue.startsWith("https://"))
             startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("https://"+scannedValue)));
         else if(!scannedValue.startsWith("http://"))
             startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("http://"+scannedValue)));
         else
-            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(scannedValue)));
+    }
 
+    private void openUrl(String scannedValue){
+        SafeBrowsingAPI.checkURLSafety(scannedValue, new SafeBrowsingAPI.SafeCheckCallback() {
+            @Override
+            public void onResult(boolean isSafe) {
+                if (isSafe) {
+                    Toast.makeText(requireContext(), "Opening URL", Toast.LENGTH_SHORT).show();
+                    redirectUrl(scannedValue);
+                } else {
+                    showURLAlertBox(scannedValue, requireContext());
+                }
+            }
+        });
     }
 
     private void scanBarcodeFromImage(Uri imageUri) {
