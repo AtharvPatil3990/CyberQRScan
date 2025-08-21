@@ -11,7 +11,6 @@
     <uses-permission android:name="android.permission.FLASHLIGHT" />
     <uses-permission android:name="android.permission.WRITE_CALENDAR" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
@@ -28,20 +27,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CyberQRScan"
         tools:targetApi="31">
-        <provider
-            android:name="androidx.core.content.FileProvider"
-            android:authorities="${applicationId}.fileprovider"
-            android:exported="false"
-            android:grantUriPermissions="true">
-            <meta-data
-                android:name="android.support.FILE_PROVIDER_PATHS"
-                android:resource="@xml/file_paths" />
-        </provider>
         <activity
-            android:name=".ui.home.GenerateQR"
+            android:name=".ui.home.QRData"
             android:exported="false" />
-        <activity android:name=".ui.home.GenerateQRResult"
-            android:exported="false"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

@@ -1,9 +1,6 @@
 package com.example.cyberqrscan.ui.settings;
 
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -16,9 +13,6 @@ import androidx.preference.PreferenceFragmentCompat;
 import com.example.cyberqrscan.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
-
-    PackageManager pm;
-    PackageInfo pInfo;
     String appVersion;
     @Override
     public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
@@ -28,16 +22,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         ListPreference themePreference = findPreference("prefAppTheme");
         Preference reportBugPref = findPreference("prefReportBug");
 
-//        Version Preference
-        try {
-            pm = requireContext().getPackageManager();
-            pInfo = pm.getPackageInfo(requireContext().getPackageName(), 0);;
-            pInfo = pm.getPackageInfo(requireContext().getPackageName(), 0);
-            appVersion = "v"+pInfo.versionName;
-
-        } catch (PackageManager.NameNotFoundException e) {
-            appVersion = "Version not found";
-        }
+        appVersion = AppInfo.getVersionName();
 
         assert versionPref != null;
         versionPref.setSummary(appVersion);
@@ -87,5 +72,4 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         sendReportEmailIntent.putExtra(Intent.EXTRA_TEXT, emailBody);
         startActivity(sendReportEmailIntent);
     }
-
 }
