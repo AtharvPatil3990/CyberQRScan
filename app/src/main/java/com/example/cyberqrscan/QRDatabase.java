@@ -45,7 +45,7 @@ public class QRDatabase extends SQLiteOpenHelper {
             ")";
     private static final String createTableURLHash = "CREATE TABLE " + urlHashTable +
             " ( id INTEGER PRIMARY KEY AUTOINCREMENT,\n" +
-            "    hash_prefix BLOB NOT NULL,\n" +
+            "    hash_prefix TEXT NOT NULL,\n" +
             "    threat_type TEXT NOT NULL);";
     public QRDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -115,23 +115,27 @@ public class QRDatabase extends SQLiteOpenHelper {
         db.delete(generateTable , null , null) ;
     }
 
-    void saveHashesToDatabase(String rawHashes, int prefixSize, String threatType){
+    void insertHashesToDatabase(String rawHashes, int prefixSize, String threatType) {
         try {
             // Step 1: Decode Base64 into raw bytes
             byte[] decodedBytes = Base64.decode(rawHashes, Base64.DEFAULT);
 
-            // Step 2: Split into prefixes and insert into DB
+            // Step 2: Split into prefixes, re-encode them as Base64, and insert as TEXT
             SQLiteDatabase db = this.getWritableDatabase();
             db.beginTransaction();
             try {
                 for (int i = 0; i < decodedBytes.length; i += prefixSize) {
+                    // Extract prefix (e.g., 4-byte or 32-byte depending on prefix size)
                     byte[] prefix = Arrays.copyOfRange(decodedBytes, i, i + prefixSize);
 
-                    ContentValues values = new ContentValues();
-                    values.put("hash_prefix", prefix);
-                    values.put("threat_type",threatType);
+                    // Convert prefix bytes back into Base64 string
+                    String prefixBase64 = Base64.encodeToString(prefix, Base64.NO_WRAP);
 
-                    db.insert(urlHashTable, null, values); // Adding threat to DB
+                    ContentValues values = new ContentValues();
+                    values.put("hash_prefix", prefixBase64); // Store as TEXT
+                    values.put("threat_type", threatType);
+
+                    db.insert(urlHashTable, null, values);
                 }
                 db.setTransactionSuccessful();
             } finally {
@@ -142,6 +146,7 @@ public class QRDatabase extends SQLiteOpenHelper {
             e.printStackTrace();
         }
     }
+
 
     public void removeHashesFromDatabase(JSONArray indices) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -178,6 +183,24 @@ public class QRDatabase extends SQLiteOpenHelper {
         }
     }
 
+    public String getUrlThreatType(String hashPrefix) {
+        String threatType = null;
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        Cursor cursor = db.rawQuery(
+                "SELECT threat_type FROM " + urlHashTable + " WHERE hash_prefix = ?",
+                new String[]{ hashPrefix } // directly use the Base64 string
+        );
+
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                threatType = cursor.getString(cursor.getColumnIndexOrThrow("threat_type"));
+            }
+            cursor.close();
+        }
+        db.close();
+        return threatType; // null if not found
+    }
 
 
     public boolean isHashPrefixInDatabase(String hashPrefix){
