@@ -28,7 +28,10 @@
         android:theme="@style/Theme.CyberQRScan"
         tools:targetApi="31">
         <activity
-            android:name=".ui.home.QRData"
+            android:name=".ui.home.GenerateQR"
+            android:exported="false" />
+        <activity
+            android:name=".ui.home.GenerateQRResult"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

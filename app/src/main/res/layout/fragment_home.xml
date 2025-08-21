@@ -17,6 +17,11 @@
         app:cardElevation="8dp"
         app:cardCornerRadius="20dp"
         app:cardBackgroundColor="@color/card_background">
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/viewPager"
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:layout_marginTop="20dp"/>
     </androidx.cardview.widget.CardView>
 
     <com.google.android.material.button.MaterialButton

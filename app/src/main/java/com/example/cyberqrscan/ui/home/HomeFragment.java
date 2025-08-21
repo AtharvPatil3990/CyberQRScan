@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.net.wifi.WifiNetworkSpecifier;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.provider.CalendarContract;
@@ -37,9 +38,11 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.preference.PreferenceManager;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.cyberqrscan.QRDatabase;
 import com.example.cyberqrscan.R;
+import com.example.cyberqrscan.ui.ImageAdapter;
 import com.google.android.material.button.MaterialButton;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -51,7 +54,9 @@ import com.google.mlkit.vision.common.InputImage;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.TimeZone;
 
 public class HomeFragment extends Fragment {
@@ -69,6 +74,31 @@ public class HomeFragment extends Fragment {
         btnScan = view.findViewById(R.id.btnScan);
         btnUploadQR = view.findViewById(R.id.btnUploadQR);
         btnGenerateQR = view.findViewById(R.id.btnGenerate);
+        // ViewPager Setup
+        ViewPager2 viewPager = view.findViewById(R.id.viewPager);
+
+        // Add your images (from drawable)
+        List<Integer> imageList = new ArrayList<>();
+        imageList.add(R.drawable.app);
+        imageList.add(R.drawable.files);
+        imageList.add(R.drawable.mail);
+
+        ImageAdapter adapter = new ImageAdapter(requireContext(), imageList);
+        viewPager.setAdapter(adapter);
+
+        // Auto-slide every 3 seconds
+        Handler handler = new Handler();
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                int currentItem = viewPager.getCurrentItem();
+                int nextItem = (currentItem + 1) % imageList.size();
+                viewPager.setCurrentItem(nextItem, true);
+                handler.postDelayed(this, 3000); // 3 sec delay
+            }
+        };
+        handler.postDelayed(runnable, 3000);
+
 
         btnGenerateQR.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -224,7 +254,7 @@ public class HomeFragment extends Fragment {
     private void showURLAlertBox(@NonNull String scannedValue, Context context){
         new AlertDialog.Builder(context)
                 .setTitle("QR Code Result")
-                .setMessage("Contains a ")
+                .setMessage("Contains a " + scannedValue)
                 .setPositiveButton("Open", (dialog, which) -> {
                     // Open URL
                     openUrl(scannedValue, context);
@@ -261,7 +291,6 @@ public class HomeFragment extends Fragment {
             startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("http://"+scannedValue)));
         else
             startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
-
     }
 
     private void scanBarcodeFromImage(Uri imageUri) {
