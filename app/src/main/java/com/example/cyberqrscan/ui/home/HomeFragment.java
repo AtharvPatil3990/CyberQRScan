@@ -309,7 +309,7 @@ public class HomeFragment extends Fragment {
             }
         });
 
-    }git
+    }
 
     private void scanBarcodeFromImage(Uri imageUri) {
         try {
