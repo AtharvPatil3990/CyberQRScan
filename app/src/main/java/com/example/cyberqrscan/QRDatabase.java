@@ -144,7 +144,7 @@ public class QRDatabase extends SQLiteOpenHelper {
                     ContentValues values = new ContentValues();
                     values.put("hash_prefix", prefixBase64);
                     values.put("threat_type", threatType);
-
+                    System.out.println("hash_prefix: "+ prefixBase64 + ", threat_type: " + threatType);
                     db.insert(urlHashTable, null, values);
                 }
                 db.setTransactionSuccessful();
@@ -223,5 +223,15 @@ public class QRDatabase extends SQLiteOpenHelper {
         cursor.close();
         db.close();
         return exists;
+    }
+
+    public void showAllHashes() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM " + urlHashTable, null);
+        while (cursor.moveToNext()){
+            System.out.println("Hash: "+cursor.getString(1) + ", Threat type: " + cursor.getString(2));
+        }
+        cursor.close();
+        db.close();
     }
 }

@@ -37,7 +37,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -255,6 +254,7 @@ public class HomeFragment extends Fragment {
                 searchProduct(barcode);
                 database.insertData("Product Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
+
             case Barcode.TYPE_TEXT:
                 if (scannedValue != null) {
                     if (scannedValue.toLowerCase().startsWith("upi://")) {
@@ -291,16 +291,14 @@ public class HomeFragment extends Fragment {
     private void showURLAlertBox(@NonNull String scannedValue, Context context){
         new AlertDialog.Builder(context)
                 .setTitle("QR Code Result")
-                .setMessage("Contains a " + scannedValue)
-                .setPositiveButton("Open", (dialog, which) -> {
-                    // Open URL
-                    startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
-                })
+                .setMessage("This URL is flagged as potentially harmful by Google Safe Browsing. Proceeding is not recommended.")
+                .setPositiveButton("Ok", null)
                 .setNegativeButton("Copy", (dialog, which) -> {
                     // Copy to clipboard
                     copyData(scannedValue , preferences);
                 })
                 .setNeutralButton("Cancel", null)
+                .create()
                 .show();
     }
     public boolean checkSaveDatabasePermission(SharedPreferences preferences){
@@ -313,7 +311,8 @@ public class HomeFragment extends Fragment {
     }
 
     private void openUrl(String scannedValue){
-        SafeBrowsingAPI.checkURLSafety(scannedValue, new SafeBrowsingAPI.SafeCheckCallback() {
+        SafeBrowsingAPI safeBrowsingAPI = new SafeBrowsingAPI(requireContext());
+        safeBrowsingAPI.checkURLSafety(scannedValue, new SafeBrowsingAPI.SafeCheckCallback() {
             @Override
             public void onResult(boolean isSafe) {
                 if (isSafe) {
@@ -324,7 +323,6 @@ public class HomeFragment extends Fragment {
                 }
             }
         });
-
     }
 
     private void scanBarcodeFromImage(Uri imageUri) {

@@ -52,14 +52,20 @@ public class MainActivity extends AppCompatActivity {
             long twoHoursMillis = 0;
 
             if((System.currentTimeMillis() - lastUpdateTime) >= twoHoursMillis){
-                SafeBrowsingAPI api = new SafeBrowsingAPI();
+                SafeBrowsingAPI api = new SafeBrowsingAPI(MainActivity.this);
                 System.out.println("Entering update threat list function");
-                api.updateThreatList(MainActivity.this);
+                api.updateThreatList();
             }
         } else {
             System.out.println("No Internet connection");
             Toast.makeText(MainActivity.this, "No internet connection!", Toast.LENGTH_SHORT).show();
         }
+
+
+        System.out.println("All hashes:");
+        QRDatabase db = new QRDatabase(MainActivity.this);
+        db.showAllHashes();
+        db.close();
     }
 
     @Override
