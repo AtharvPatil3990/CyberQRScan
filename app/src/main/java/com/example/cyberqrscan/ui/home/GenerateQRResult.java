@@ -3,6 +3,7 @@ package com.example.cyberqrscan.ui.home;
 import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
@@ -11,18 +12,15 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.fragment.app.Fragment;
+import androidx.preference.PreferenceManager;
 
 import com.example.cyberqrscan.QRDatabase;
 import com.example.cyberqrscan.R;
@@ -43,6 +41,7 @@ public class GenerateQRResult extends AppCompatActivity {
     Button submit  , save , share ;
     ImageView qr ;
     QRDatabase database ;
+    SharedPreferences preferences ;
     List<TextInputEditText> dynamicEditTexts = new ArrayList<>();
 
     @Override
@@ -59,6 +58,7 @@ public class GenerateQRResult extends AppCompatActivity {
         qr = findViewById(R.id.qr) ;
 
         saveAndshareLayout.setVisibility(View.INVISIBLE);
+        preferences = PreferenceManager.getDefaultSharedPreferences(GenerateQRResult.this);
 
         Intent intent = getIntent() ;
         String type = intent.getStringExtra("type") ;
@@ -121,35 +121,35 @@ public class GenerateQRResult extends AppCompatActivity {
         database = new QRDatabase(GenerateQRResult.this) ;
         switch (type) {
             case "url":
-                database.insertData("URL" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("URL" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return values.get(0).startsWith("http") ? values.get(0) : "https://" + values.get(0);
 
             case "phone":
-                database.insertData("Phone Number" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable) ;
-                return "tel:" + values.get(0);
+                database.insertData("Phone Number" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
+                return "tel:+91" + values.get(0);
 
             case "mail":
-                database.insertData("Email" , values.get(0) + " " + values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("Email" , values.get(0) + " " + values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return "mailto:" + values.get(0) + "?subject=" + values.get(1) + "&body=" + values.get(2);
 
             case "plain":
-                database.insertData("Text" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("Text" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return values.get(0);
 
             case "wifi":
-                database.insertData("WiFi Details" , values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("WiFi Details" , values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return "WIFI:T:" + values.get(0) + ";S:" + values.get(1) + ";P:" + values.get(2) + ";;";
 
             case "sms":
-                database.insertData("SMS" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("SMS" , values.get(0) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return "SMSTO:" + values.get(0) + ":" + values.get(1);
 
             case "location":
-                database.insertData("Geographical Co-ordinates" , values.get(0) + " " + values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("Geographical Co-ordinates" , values.get(0) + " " + values.get(1) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return "geo:" + values.get(0) + "," + values.get(1);
 
             case "contact":
-                database.insertData("Contact Info" , values.get(0) + " " + values.get(2) + " " + values.get(4) , System.currentTimeMillis() , QRDatabase.generateTable) ;
+                database.insertData("Contact Info" , values.get(0) + " " + values.get(2) + " " + values.get(4) , System.currentTimeMillis() , QRDatabase.generateTable , checkSaveDatabasePermission(preferences)) ;
                 return "BEGIN:VCARD\n" +
                         "VERSION:3.0\n" +
                         "N:" + values.get(0) + "\n" +
@@ -166,6 +166,16 @@ public class GenerateQRResult extends AppCompatActivity {
                 return null;
         }
     }
+
+    private static Boolean checkSaveDatabasePermission(SharedPreferences preferences) {
+        if (preferences.getBoolean("prefSaveHistory",false)){
+            return false ;
+        }
+        else {
+            return true ;
+        }
+    }
+
     private void saveImageToGallery() {
         OutputStream fos;
         qr.buildDrawingCache();

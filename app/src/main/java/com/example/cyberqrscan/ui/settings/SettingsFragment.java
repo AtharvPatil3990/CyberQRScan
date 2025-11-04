@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceFragmentCompat;
+
+import com.example.cyberqrscan.QRDatabase;
 import com.example.cyberqrscan.R;
 
 public class SettingsFragment extends PreferenceFragmentCompat {
@@ -21,6 +23,7 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         Preference versionPref = findPreference("prefVersion");
         ListPreference themePreference = findPreference("prefAppTheme");
         Preference reportBugPref = findPreference("prefReportBug");
+        QRDatabase database = new QRDatabase(requireContext());
 
         appVersion = AppInfo.getVersionName();
 
@@ -53,6 +56,24 @@ public class SettingsFragment extends PreferenceFragmentCompat {
         if (reportBugPref != null) {
             reportBugPref.setOnPreferenceClickListener(preference -> {
                 sendBugReportEmail();
+                return true;
+            });
+        }
+        Preference clearScanHistory = findPreference("prefClearHistory");
+        Preference clearGenerateHistory = findPreference("prefClearHistoryGenerate");
+
+        if (clearScanHistory != null) {
+            clearScanHistory.setOnPreferenceClickListener(preference -> {
+                database.deleteAll(QRDatabase.scanTable);
+                Toast.makeText(getContext(), "Scan history cleared", Toast.LENGTH_SHORT).show();
+                return true;
+            });
+        }
+
+        if (clearGenerateHistory != null) {
+            clearGenerateHistory.setOnPreferenceClickListener(preference -> {
+                database.deleteAll(QRDatabase.generateTable);
+                Toast.makeText(getContext(), "Generate history cleared", Toast.LENGTH_SHORT).show();
                 return true;
             });
         }

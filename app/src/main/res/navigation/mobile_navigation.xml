@@ -15,7 +15,7 @@
         android:id="@+id/navigation_history"
         android:name="com.example.cyberqrscan.ui.history.HistoryFragment"
         android:label="@string/title_history"
-        tools:layout="@layout/fragment_Scanhistory" />
+        tools:layout="@layout/fragment_scanhistory" />
 
     <fragment
         android:id="@+id/navigation_settings"

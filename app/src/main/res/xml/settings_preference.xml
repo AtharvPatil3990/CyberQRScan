@@ -49,11 +49,10 @@
             android:title="Clear Scan History"
             android:summary="Delete all saved scans"
             />
-
         <Preference
-            android:key="prefSync"
-            android:title="Sync History"
-            android:summary="Sync history to cloud"
+            android:key="prefClearHistoryGenerate"
+            android:title="Clear Generate History"
+            android:summary="Delete all saved scans"
             />
 
         <SwitchPreferenceCompat

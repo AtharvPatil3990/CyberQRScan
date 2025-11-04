@@ -8,7 +8,6 @@ import org.json.JSONObject;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.preference.PreferenceManager;
@@ -42,14 +41,15 @@ public class SafeBrowsingAPI{
         postReportForFullUrl(hash, callback);
     }
 
-    public void updateThreatList(){
+    public void updateThreatList(Context context){
         String UPDATE_URL = "https://safebrowsing.googleapis.com/v4/threatListUpdates:fetch?key="+R.string.API_Key;
 
         OkHttpClient client = new OkHttpClient();
-        String jsonBody = buildJsonRequestBodyForHash();
-        if(jsonBody == null)
+        String jsonBody = buildJsonRequestBodyForHash(context);
+        if(jsonBody == null) {
+            System.out.println("Returned null from update url function");
             return;
-
+        }
         RequestBody body = RequestBody.create(
                 jsonBody,
                 MediaType.get("application/json; charset=utf-8")
@@ -63,19 +63,22 @@ public class SafeBrowsingAPI{
         client.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
-                Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+                System.out.println("Response failed in updateThreatList function");
             }
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AppInfo.getContext(), "Update URL Response failed", Toast.LENGTH_SHORT).show();
+                    System.out.println("Response code : " + response.code());
+                    System.out.println("Response Body : " + response.body());
+                    System.out.println("Response Not successful");
                     return;
                 }
 
+                assert response.body() != null;
                 String jsonResponse = response.body().toString();
                 handleResponse(jsonResponse);
-                Toast.makeText(AppInfo.getContext(), "Update URL Response successful", Toast.LENGTH_SHORT).show();
+                System.out.println("Response successful");
             }
         });
 
@@ -94,9 +97,10 @@ public class SafeBrowsingAPI{
             JSONArray listUpdates = obj.optJSONArray("listUpdateResponses");
             if (listUpdates == null) {
 //                No updates found in response.
+                System.out.println("No updates found in response.");
                 return;
             }
-
+            System.out.println("Updates found in response.");
             int listUpdateLength = listUpdates.length();
             for (int i = 0; i < listUpdateLength; i++) {
                 JSONObject update = listUpdates.getJSONObject(i);
@@ -106,9 +110,8 @@ public class SafeBrowsingAPI{
 
                 // Save the new client state for future incremental updates
                 String newClientState = update.optString("newClientState", "");
-                if (!newClientState.isEmpty()) {
+                if (!newClientState.isEmpty())
                     saveClientState(newClientState, threatType);
-                }
 
                 // Handle additions (new hashes)
                 if (update.has("additions")) {
@@ -141,7 +144,7 @@ public class SafeBrowsingAPI{
                 }
             }
         } catch (JSONException e) {
-            Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+            System.out.println( e.getMessage() + " " + e.getCause());
         }
     }
 
@@ -151,7 +154,8 @@ public class SafeBrowsingAPI{
         try {
             // Client info
             JSONObject clientObj = new JSONObject();
-            clientObj.put("clientId", R.string.projectid);
+            String projectId = String.valueOf(R.string.projectid);
+            clientObj.put("clientId", projectId);
             clientObj.put("clientVersion", AppInfo.getVersionName());
 
             // Threat entries (just one hash)
@@ -175,13 +179,15 @@ public class SafeBrowsingAPI{
         }
         return json.toString();
     }
-    private String buildJsonRequestBodyForHash(){
+
+    private String buildJsonRequestBodyForHash(Context context){
         try {
             JSONObject root = new JSONObject();
-
             // ---- Client section ----
             JSONObject client = new JSONObject();
-            client.put("clientId", R.string.projectid); // You might need getString() here
+
+            String projectId = context.getString(R.string.projectid);
+            client.put("clientId", projectId); // You might need getString() here
             client.put("clientVersion", AppInfo.getVersionName());
             root.put("client", client);
 
@@ -191,15 +197,17 @@ public class SafeBrowsingAPI{
             // Threat types you want to include
             String[] threatTypes = {"MALWARE", "SOCIAL_ENGINEERING"};
 
-            for (String threatType : threatTypes) {
+//            for (String threatType : threatTypes) {
                 JSONObject updateRequest = new JSONObject();
 
-                updateRequest.put("threatType", threatType);
+//                updateRequest.put("threatType", threatType);
+                updateRequest.put("threatType", "MALWARE");
                 updateRequest.put("platformType", "ANDROID");
                 updateRequest.put("threatEntryType", "URL");
 
                 // Client state from last update (empty for first request)
-                String clientState = getSavedClientState(threatType);
+//                String clientState = getSavedClientState(threatType);
+                String clientState = getSavedClientState("MALWARE");
                 updateRequest.put("state", clientState);
 
                 // ---- Constraints ----
@@ -215,7 +223,7 @@ public class SafeBrowsingAPI{
 
                 // Add this threat type request to list
                 listUpdateRequests.put(updateRequest);
-            }
+//            }
             root.put("listUpdateRequests", listUpdateRequests);
 
             return root.toString();
@@ -277,7 +285,7 @@ public class SafeBrowsingAPI{
             client.newCall(request).enqueue(new Callback() {
                 @Override
                 public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                    Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+                    System.out.println(e.getMessage() + " " + e.getCause());
                     callback.onResult(true); // If network fails → assume safe
                 }
 
@@ -297,7 +305,7 @@ public class SafeBrowsingAPI{
                             }
 
                         } catch (JSONException e) {
-                            Toast.makeText(AppInfo.getContext(), e.getMessage() + " " + e.getCause(), Toast.LENGTH_SHORT).show();
+                            System.out.println(e.getMessage() + " " + e.getCause());
                             callback.onResult(true); // default safe on error
                         }
                     } else {

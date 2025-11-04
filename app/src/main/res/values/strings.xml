@@ -1,9 +1,9 @@
 <resources>
-    <string name="app_name">Cyber QR Scanner</string>
+    <string name="app_name">CyberQRScan</string>
     <string name="title_home">Home</string>
     <string name="title_history">History</string>
     <string name="title_settings">Settings</string>
     <string name="reportEmail">nextgendevelopers99@gmail.com</string>
     <string name="projectid">cyberqrscanner</string>
-    <string name="API_Key">key</string>
+    <string name="API_Key">AIzaSyAm4Wpuw5ihmloKOmU9GGS9qbT9tskbL7c</string>
 </resources>

@@ -37,6 +37,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
+import androidx.preference.Preference;
 import androidx.preference.PreferenceManager;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -65,6 +66,7 @@ public class HomeFragment extends Fragment {
     private ActivityResultLauncher<Intent> galleryLauncher;
 
     private MaterialButton btnScan , btnUploadQR, btnGenerateQR;
+    public SharedPreferences preferences ;
 
     @Nullable
     @Override
@@ -81,9 +83,9 @@ public class HomeFragment extends Fragment {
 
         // Add your images (from drawable)
         List<Integer> imageList = new ArrayList<>();
-        imageList.add(R.drawable.app);
-        imageList.add(R.drawable.files);
-        imageList.add(R.drawable.mail);
+        imageList.add(R.drawable.ic_logo);
+        imageList.add(R.drawable.ic_images);
+        imageList.add(R.drawable.ic_features);
 
         ImageAdapter adapter = new ImageAdapter(requireContext(), imageList);
         viewPager.setAdapter(adapter);
@@ -170,7 +172,7 @@ public class HomeFragment extends Fragment {
         QRDatabase database = new QRDatabase(requireContext());
         AlertDialog.Builder builder ;
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
+        preferences = PreferenceManager.getDefaultSharedPreferences(requireContext());
         if (preferences.getBoolean("prefBeepSound", false)) {
             // Beep
             ToneGenerator toneGen = new ToneGenerator(AudioManager.STREAM_MUSIC, 100);
@@ -190,34 +192,24 @@ public class HomeFragment extends Fragment {
             case Barcode.TYPE_URL :
                 assert scannedValue != null;
                 openUrl(scannedValue);
-                database.insertData("URL" , barcode.getRawValue() , System.currentTimeMillis() , table) ;
-                break ;
-
-            case Barcode.TYPE_TEXT :
-                copyData(scannedValue);
-                builder = new AlertDialog.Builder(requireContext());
-                builder.setTitle("Text Detected");
-                builder.setMessage(barcode.getDisplayValue());
-                builder.setPositiveButton("OK", null);
-                builder.show();
-                database.insertData("Text" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("URL" , barcode.getRawValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_EMAIL:
                 intent = new Intent (Intent.ACTION_SENDTO , Uri.parse("mailto:")) ;
                 String [] details = parseEmailFromQR(scannedValue) ;
-                intent.putExtra(Intent.EXTRA_EMAIL, details[0]);
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{details[0]});
                 intent.putExtra(Intent.EXTRA_SUBJECT, details[1]);
                 intent.putExtra(Intent.EXTRA_TEXT, details[2]);
                 intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                 startActivity(intent);
-                database.insertData("Email" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Email" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_PHONE:
                 intent = new Intent (Intent.ACTION_DIAL , Uri.parse("tel:+91"+scannedValue)) ;
                 startActivity(intent) ;
-                database.insertData("Phone Number" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Phone Number" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_SMS:
@@ -226,49 +218,74 @@ public class HomeFragment extends Fragment {
                 builder.setMessage("Phone Number: " + barcode.getPhone() + "\nMessage: " + barcode.getSms().getMessage());
                 builder.setPositiveButton("OK", null);
                 builder.show();
-                database.insertData("SMS" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("SMS" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_WIFI:
                 connectWifi(barcode);
-                database.insertData("WiFi Details" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("WiFi Details" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_GEO:
                 loadMap(barcode);
-                database.insertData("Geographical Co-ordinates" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Geographical Co-ordinates" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_CALENDAR_EVENT:
                 loadCalender(barcode);
-                database.insertData("Calender" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Calender" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_CONTACT_INFO:
                 loadContacts(barcode);
-                database.insertData("Contact Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Contact Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_ISBN:
                 searchISBN(barcode);
-                database.insertData("ISBN" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("ISBN" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_DRIVER_LICENSE:
                 ViewDrivingLicense(barcode);
-                database.insertData("Driving License" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Driving License" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
             case Barcode.TYPE_PRODUCT:
                 searchProduct(barcode);
-                database.insertData("Product Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table) ;
+                database.insertData("Product Info" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
+            case Barcode.TYPE_TEXT:
+                if (scannedValue != null) {
+                    if (scannedValue.toLowerCase().startsWith("upi://")) {
+                        handleUPI(scannedValue);
+                    } else if (scannedValue.toLowerCase().startsWith("geo:")) {
+                        // Handle geo manually if ML Kit detected it as text
+                        Uri geoUri = Uri.parse(scannedValue);
+                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, geoUri);
+                        mapIntent.setPackage("com.google.android.apps.maps");
+                        if (mapIntent.resolveActivity(requireContext().getPackageManager()) != null) {
+                            startActivity(mapIntent);
+                        } else {
+                            Toast.makeText(getContext(), "Google Maps app not found!", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        copyData(scannedValue, preferences);
+                        builder = new AlertDialog.Builder(requireContext());
+                        builder.setTitle("Text Detected");
+                        builder.setMessage(barcode.getDisplayValue());
+                        builder.setPositiveButton("OK", null);
+                        builder.show();
+                    }
+                }
+                database.insertData("Text", barcode.getDisplayValue(),
+                        System.currentTimeMillis(), table,
+                        checkSaveDatabasePermission(preferences));
+                break;
 
             default:
                 Toast.makeText(requireContext(), "Scan failed: Please try again", Toast.LENGTH_SHORT).show();
         }
-
-
     }
 
     private void showURLAlertBox(@NonNull String scannedValue, Context context){
@@ -277,23 +294,22 @@ public class HomeFragment extends Fragment {
                 .setMessage("Contains a " + scannedValue)
                 .setPositiveButton("Open", (dialog, which) -> {
                     // Open URL
-                    redirectUrl(scannedValue);
+                    startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
                 })
                 .setNegativeButton("Copy", (dialog, which) -> {
                     // Copy to clipboard
-                    copyData(scannedValue);
+                    copyData(scannedValue , preferences);
                 })
                 .setNeutralButton("Cancel", null)
                 .show();
     }
-
-    private void redirectUrl(String scannedValue){
-        if(!scannedValue.startsWith("https://"))
-            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("https://"+scannedValue)));
-        else if(!scannedValue.startsWith("http://"))
-            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("http://"+scannedValue)));
-        else
-            startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
+    public boolean checkSaveDatabasePermission(SharedPreferences preferences){
+        if (preferences.getBoolean("prefSaveHistory",false)){
+            return false ;
+        }
+        else {
+            return true ;
+        }
     }
 
     private void openUrl(String scannedValue){
@@ -302,7 +318,7 @@ public class HomeFragment extends Fragment {
             public void onResult(boolean isSafe) {
                 if (isSafe) {
                     Toast.makeText(requireContext(), "Opening URL", Toast.LENGTH_SHORT).show();
-                    redirectUrl(scannedValue);
+                    startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse(scannedValue)));
                 } else {
                     showURLAlertBox(scannedValue, requireContext());
                 }
@@ -329,7 +345,7 @@ public class HomeFragment extends Fragment {
                     .addOnSuccessListener(barcodes -> {
                         if (barcodes.size() > 0) {
                             for (Barcode barcode : barcodes) {
-                                selectType(barcode , QRDatabase.generateTable); // Create this method to handle various types
+                                selectType(barcode , QRDatabase.scanTable); // Create this method to handle various types
                             }
                         } else {
                             Toast.makeText(requireContext(), "No barcode found", Toast.LENGTH_SHORT).show();
@@ -440,6 +456,27 @@ public class HomeFragment extends Fragment {
             Toast.makeText(requireContext(), "No contacts app found!", Toast.LENGTH_SHORT).show();
         }
     }
+    public void handleUPI(String scannedData) {
+            try {
+                Uri uri = Uri.parse(scannedData);
+
+                // Create an intent for UPI payment
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(uri);
+
+                // Verify at least one UPI app exists
+                if (intent.resolveActivity(getContext().getPackageManager()) != null) {
+                    startActivity(intent); // opens UPI app
+                } else {
+                    Toast.makeText(getContext(), "No UPI app found!", Toast.LENGTH_SHORT).show();
+                }
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(getContext(), "Invalid UPI link!", Toast.LENGTH_SHORT).show();
+            }
+    }
+
     public void loadCalender(Barcode barcode) {
         Barcode.CalendarEvent event = barcode.getCalendarEvent();
 
@@ -554,12 +591,15 @@ public class HomeFragment extends Fragment {
         }
     }
 
-    public void copyData(String scannedValue){
-        ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
-        clipboard.setPrimaryClip(clip);
-
-        Toast.makeText(requireContext(), "Copied to clipboard", Toast.LENGTH_SHORT).show();
+    public void copyData(String scannedValue , SharedPreferences preferences){
+        if (preferences.getBoolean("prefAutoCopy",false)){
+            return ;
+        }
+        else {
+            ClipboardManager clipboard = (ClipboardManager) requireContext().getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("QR Code", scannedValue);
+            clipboard.setPrimaryClip(clip);
+        }
     }
     private String[] parseEmailFromQR(String qrValue) {
         String email = "";

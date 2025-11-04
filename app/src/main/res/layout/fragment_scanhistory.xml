@@ -18,23 +18,11 @@
         app:boxCornerRadiusBottomStart="12dp"
         app:boxCornerRadiusBottomEnd="12dp"/>
 
-    <!-- EditText -->
-    <com.google.android.material.textfield.TextInputEditText
-        android:id="@+id/et_searchBar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Search history"
-        android:drawableStart="@drawable/scanhistory_search"
-        android:background="@drawable/roundedsearch"
-        android:layout_below="@id/textInputLayout"
-        android:layout_marginTop="8dp"/>
-
     <!-- TabLayout -->
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/et_searchBar"
         android:layout_marginTop="8dp"
         app:tabIndicatorColor="@color/teal_700"
         app:tabSelectedTextColor="@color/black"/>

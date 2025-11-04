@@ -45,14 +45,19 @@ public class MainActivity extends AppCompatActivity {
         if (NetworkUtil.isNetworkAvailable(MainActivity.this)) {
             SharedPreferences prefs = MainActivity.this.getSharedPreferences("SafeBrowsingPrefs", Context.MODE_PRIVATE);
             long lastUpdateTime = prefs.getLong("last_URLdb_update_time", 0);
+            Toast.makeText(MainActivity.this, "network available", Toast.LENGTH_SHORT).show();
+            System.out.println("Network available");
 
-            long twoHoursMillis = 2 * 60 * 60 * 1000;
+            //            long twoHoursMillis = 2 * 60 * 60 * 1000;
+            long twoHoursMillis = 0;
 
-            if((System.currentTimeMillis() - lastUpdateTime) <= twoHoursMillis){
+            if((System.currentTimeMillis() - lastUpdateTime) >= twoHoursMillis){
                 SafeBrowsingAPI api = new SafeBrowsingAPI();
-                api.updateThreatList();
+                System.out.println("Entering update threat list function");
+                api.updateThreatList(MainActivity.this);
             }
         } else {
+            System.out.println("No Internet connection");
             Toast.makeText(MainActivity.this, "No internet connection!", Toast.LENGTH_SHORT).show();
         }
     }
