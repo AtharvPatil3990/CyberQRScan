@@ -39,6 +39,7 @@ public class ScanFragement extends Fragment {
 
         // Initialize adapter with empty list first
         list = new ArrayList<>();
+        list = database.getAllScan() ;
         adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, list);
         listView.setAdapter(adapter);
         refreshData(); // load actual data once

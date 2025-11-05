@@ -217,6 +217,7 @@ public class HomeFragment extends Fragment {
                 builder.setMessage("Phone Number: " + barcode.getPhone() + "\nMessage: " + barcode.getSms().getMessage());
                 builder.setPositiveButton("OK", null);
                 builder.show();
+                startActivity(new Intent(Intent.ACTION_VIEW , Uri.parse("sms:" + barcode.getPhone() + "?body=" + barcode.getSms().getMessage())));
                 database.insertData("SMS" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
@@ -226,7 +227,7 @@ public class HomeFragment extends Fragment {
                 break ;
 
             case Barcode.TYPE_GEO:
-                loadMap(barcode);
+                loadMap(getContext() , barcode);
                 database.insertData("Geographical Co-ordinates" , barcode.getDisplayValue() , System.currentTimeMillis() , table , checkSaveDatabasePermission(preferences)) ;
                 break ;
 
@@ -521,9 +522,13 @@ public class HomeFragment extends Fragment {
         return calendar.getTimeInMillis();
     }
 
-    public void loadMap(Barcode barcode){
-        Barcode.GeoPoint geoPoint = barcode.getGeoPoint();
+    public void loadMap(Context context, Barcode barcode) {
+        if (barcode == null || barcode.getGeoPoint() == null) {
+            Toast.makeText(context, "Invalid location data!", Toast.LENGTH_SHORT).show();
+            return;
+        }
 
+        Barcode.GeoPoint geoPoint = barcode.getGeoPoint();
         double latitude = geoPoint.getLat();
         double longitude = geoPoint.getLng();
 
@@ -532,15 +537,16 @@ public class HomeFragment extends Fragment {
 
         // Create intent to open map
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(geoUri));
-        mapIntent.setPackage("com.google.android.apps.maps"); // open specifically in Google Maps
+        mapIntent.setPackage("com.google.android.apps.maps"); // specifically Google Maps
 
         // Start the map activity if available
-        if (mapIntent.resolveActivity(requireContext().getPackageManager()) != null) {
-            startActivity(mapIntent);
+        if (mapIntent.resolveActivity(context.getPackageManager()) != null) {
+            context.startActivity(mapIntent);
         } else {
-            Toast.makeText(getContext(), "Google Maps app not found!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, "Google Maps app not found!", Toast.LENGTH_SHORT).show();
         }
     }
+
     public void connectWifi(Barcode barcode) {
         Barcode.WiFi wifi = barcode.getWifi();
 
