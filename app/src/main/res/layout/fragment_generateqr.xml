@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:padding="20dp"
     android:background="#D5D5D5">
 
 
@@ -58,7 +59,7 @@
         android:backgroundTint="#FFF8F8"
         android:elevation="10dp"
         android:padding="10dp"
-        android:text="Plain"
+        android:text="Plain Text"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="20dp"
         android:textColor="@color/black"

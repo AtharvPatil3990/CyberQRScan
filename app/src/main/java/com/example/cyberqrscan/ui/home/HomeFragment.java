@@ -45,6 +45,7 @@ import com.example.cyberqrscan.R;
 
 import com.example.cyberqrscan.ui.ImageAdapter;
 import com.example.cyberqrscan.SafeBrowsingAPI;
+import com.example.cyberqrscan.ui.history.QRHistoryData;
 import com.google.android.material.button.MaterialButton;
 import com.google.mlkit.vision.barcode.BarcodeScanner;
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions;
@@ -88,6 +89,16 @@ public class HomeFragment extends Fragment {
 
         ImageAdapter adapter = new ImageAdapter(requireContext(), imageList);
         viewPager.setAdapter(adapter);
+        QRDatabase db = new QRDatabase(requireContext());
+        ArrayList<QRHistoryData> dataScan = db.getAllScan();
+        ArrayList<QRHistoryData> dataGen = db.getAllGenerate();
+
+        for (QRHistoryData data: dataScan) {
+            Log.d("Binding","Scanned QR Type: " + data.getType() + " Data: " + data.getData() + " Time: " + data.getCreationTime());
+        }
+        for (QRHistoryData data: dataGen) {
+            Log.d("Binding","Generated QR Type: " + data.getType() + " Data: " + data.getData() + " Time: " + data.getCreationTime());
+        }
 
         // Auto-slide every 3 seconds
         Handler handler = new Handler();

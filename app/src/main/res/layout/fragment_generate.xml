@@ -9,10 +9,10 @@
     android:padding="10dp">
 
     <!-- ListView takes remaining space and scrolls automatically -->
-    <ListView
-        android:id="@+id/listViewGenerate"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewGenerate"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1" />
 
     <!-- Button stays at bottom -->

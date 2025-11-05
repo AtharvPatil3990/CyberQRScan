@@ -1,30 +1,30 @@
 package com.example.cyberqrscan.ui.history;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.cyberqrscan.QRDatabase;
 import com.example.cyberqrscan.R;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class GenerateFragment extends Fragment {
 
-    ListView listView;
+    RecyclerView recyclerView;
     Button clear;
-    List<String> list;
+    ArrayList<QRHistoryData> list;
     QRDatabase database;
-    ArrayAdapter<String> adapter;
+    HistoryRecyclerViewAdapter adapter;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -32,28 +32,27 @@ public class GenerateFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_generate, container, false);
 
-        listView = view.findViewById(R.id.listViewGenerate);
+        recyclerView = view.findViewById(R.id.recyclerViewGenerate);
         clear = view.findViewById(R.id.btnGenerateClear);
 
         database = new QRDatabase(requireContext());
 
         // initialize adapter with data
-        // initialize adapter with empty list first
-        list = new ArrayList<>();
-        adapter = new ArrayAdapter<>(requireContext(), android.R.layout.simple_list_item_1, list);
-        listView.setAdapter(adapter);
-
-// load data from DB
-        refreshData();
-
-        System.out.println(list) ;
+        list = database.getAllGenerate();
+        adapter = new HistoryRecyclerViewAdapter(requireContext(), list);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView.setAdapter(adapter);
+        for (QRHistoryData data: list) {
+            Log.d("Binding","GenerateFrag Type: " + data.getType() + " Data: " + data.getData() + " Time: " + data.getCreationTime());
+        }
         // clear button
         clear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 database.deleteAll(QRDatabase.generateTable);
-                list.clear(); // also clear local list
-                adapter.notifyDataSetChanged();
+                int size = list.size();
+                list.clear();
+                adapter.notifyItemRangeRemoved(0, size);
             }
         });
         return view;
@@ -62,13 +61,13 @@ public class GenerateFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        refreshData(); // reload latest data when tab is opened
-    }
-    private void refreshData() {
         list.clear();
-        list.addAll(database.getAllGenerate()); // fetch latest DB entries
+        // 2. Get the fresh, updated list from the database
+        list.addAll(database.getAllGenerate());
+        // 3. Notify the adapter that the data has completely changed
         adapter.notifyDataSetChanged();
     }
+
     @Override
     public void onDestroy() {
         super.onDestroy();

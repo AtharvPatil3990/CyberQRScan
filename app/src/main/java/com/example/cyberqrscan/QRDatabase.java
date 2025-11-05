@@ -7,6 +7,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Base64;
 
+import com.example.cyberqrscan.ui.history.QRHistoryData;
+
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -76,9 +78,9 @@ public class QRDatabase extends SQLiteOpenHelper {
     }
 
 
-    public List<String> getAllScan() {
+    public ArrayList<QRHistoryData> getAllScan() {
         SQLiteDatabase db = this.getReadableDatabase();
-        List<String> results = new ArrayList<>();
+        ArrayList<QRHistoryData> results = new ArrayList<>();
 
         Cursor cursor = db.query(
                 scanTable,
@@ -87,22 +89,18 @@ public class QRDatabase extends SQLiteOpenHelper {
                 timestamp + " DESC"   // latest first
         );
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                String entry = "Type: " + cursor.getString(0) +
-                        "\nData: " + cursor.getString(1) +
-                        "\nTime: " + cursor.getLong(2);
-                results.add(entry);
-            } while (cursor.moveToNext());
-            cursor.close();
+        while (cursor.moveToNext()){
+            results.add(new QRHistoryData(cursor.getString(0), cursor.getString(1), cursor.getLong(2)));
         }
+
+        cursor.close();
         return results;
     }
 
 
-    public List<String> getAllGenerate() {
+    public ArrayList<QRHistoryData> getAllGenerate() {
         SQLiteDatabase db = this.getReadableDatabase();
-        List<String> results = new ArrayList<>();
+        ArrayList<QRHistoryData> results = new ArrayList<>();
 
         Cursor cursor = db.query(
                 generateTable,
@@ -111,15 +109,10 @@ public class QRDatabase extends SQLiteOpenHelper {
                 timestamp + " DESC"
         );
 
-        if (cursor != null && cursor.moveToFirst()) {
-            do {
-                String entry = "Type: " + cursor.getString(0) +
-                        "\nData: " + cursor.getString(1) +
-                        "\nTime: " + cursor.getLong(2);
-                results.add(entry);
-            } while (cursor.moveToNext());
-            cursor.close();
+        while(cursor.moveToNext()) {
+            results.add(new QRHistoryData(cursor.getString(0), cursor.getString(1), cursor.getLong(2)));
         }
+        cursor.close();
         return results;
     }
 
@@ -144,7 +137,6 @@ public class QRDatabase extends SQLiteOpenHelper {
                     ContentValues values = new ContentValues();
                     values.put("hash_prefix", prefixBase64);
                     values.put("threat_type", threatType);
-                    System.out.println("hash_prefix: "+ prefixBase64 + ", threat_type: " + threatType);
                     db.insert(urlHashTable, null, values);
                 }
                 db.setTransactionSuccessful();

@@ -241,7 +241,4 @@ public class GenerateQRResult extends AppCompatActivity {
             Toast.makeText(this, "Error sharing QR code", Toast.LENGTH_SHORT).show();
         }
     }
-
-
-
 }
